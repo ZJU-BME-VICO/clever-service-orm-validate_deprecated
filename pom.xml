@@ -7,7 +7,7 @@
 		http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.zju.bme</groupId>
-	<artifactId>clever-service</artifactId>
+	<artifactId>clever-service-orm</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
@@ -29,7 +29,7 @@
 			<properties>
 				<env>dev</env>
 				<tomcat.url>http://${tomcat.server}:${tomcat.port}/manager/text</tomcat.url>
-				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-service</database.url>
+				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-service-orm</database.url>
 				<database.username>sa</database.username>
 				<database.password>sa</database.password>
 			</properties>
@@ -67,7 +67,7 @@
 					<url>${tomcat.url}</url>
 					<username>admin</username>
 					<password>admin</password>
-					<path>/clever-service</path>
+					<path>/clever-service-orm</path>
 					<charset>${project.build.sourceEncoding}</charset>
 					<uriEncoding>${project.build.sourceEncoding}</uriEncoding>
 					<port>${tomcat.port}</port>
