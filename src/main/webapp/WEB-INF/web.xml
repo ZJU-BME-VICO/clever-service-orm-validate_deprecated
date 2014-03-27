@@ -21,7 +21,7 @@
 		<servlet-class>edu.zju.bme.clever.service.util.Log4jInit</servlet-class>
 		<init-param>
 			<param-name>log4j</param-name>
-			<param-value>WEB-INF/classes/log4j.properties</param-value>
+			<param-value>WEB-INF/log4j.properties</param-value>
 		</init-param>
 	</servlet>
 
