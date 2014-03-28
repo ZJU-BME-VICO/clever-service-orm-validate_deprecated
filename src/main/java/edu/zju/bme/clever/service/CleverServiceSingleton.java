@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
 
 import edu.zju.bme.archetype2java.Archetype2Java;
+import edu.zju.bme.archetype2java.JavaClass;
 
 public enum CleverServiceSingleton {
 
@@ -340,7 +342,9 @@ public enum CleverServiceSingleton {
 				return null;
 			}
 			
-			return null;
+			Set<String> archetypeIds = new HashSet<>();
+			Archetype2Java.INSTANCE.getJavaClasses().forEach(j -> archetypeIds.add(j.getArchetypeName()));
+			return archetypeIds;
 			
 		} catch (Exception e) {
 			logger.error(e);
@@ -357,8 +361,14 @@ public enum CleverServiceSingleton {
 			if (!getServiceStatus()) {
 				return "";
 			}
-			
-			return null;
+
+			for (JavaClass jc : Archetype2Java.INSTANCE.getJavaClasses()) {
+				if (jc.getArchetypeName().compareTo(archetypeId) == 0) {
+					return jc.getArchetypeString();
+				}
+			}
+
+			return "";
 			
 		} catch (Exception e) {
 			logger.error(e);
