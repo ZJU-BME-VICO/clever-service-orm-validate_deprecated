@@ -14,11 +14,13 @@ import org.hibernate.property.Getter;
 import org.hibernate.property.PropertyAccessor;
 import org.hibernate.property.PropertyAccessorFactory;
 import org.hibernate.property.Setter;
+import org.joda.time.DateTime;
 import org.openehr.am.archetype.Archetype;
 import org.openehr.am.archetype.constraintmodel.CObject;
 import org.openehr.build.RMObjectBuilder;
 import org.openehr.build.SystemValue;
 import org.openehr.rm.common.archetyped.Locatable;
+import org.openehr.rm.datatypes.quantity.datetime.DvDateTimeParser;
 import org.openehr.rm.datatypes.text.CodePhrase;
 import org.openehr.rm.support.measurement.MeasurementService;
 import org.openehr.rm.support.measurement.SimpleMeasurementService;
@@ -58,10 +60,8 @@ public enum ArchetypeManipulator {
 		}		
 	}
 	
-	public void setArchetypeValue(
-			Locatable loc, 
-			Map<String, Object> values, 
-			Archetype archetype) 
+	public void setArchetypeValues(
+			Locatable loc, Map<String, Object> values, Archetype archetype) 
 					throws InstantiationException, IllegalAccessException {
 		for (String path : values.keySet()) {
 			setArchetypeValue(loc, path, values.get(path), archetype);
@@ -69,17 +69,14 @@ public enum ArchetypeManipulator {
 	}
 	
 	public void setArchetypeValue(
-			Locatable loc, 
-			String propertyPath, 
-			Object propertyValue, 
-			Archetype archetype) 
+			Locatable loc, String propertyPath, Object propertyValue, Archetype archetype) 
 					throws InstantiationException, IllegalAccessException {
+		
 		Map<String, CObject> pathNodeMap = archetype.getPathNodeMap();
 		String nodePath = getArchetypeNodePath(archetype, propertyPath);
 		if (nodePath.compareTo(propertyPath) == 0) {
 			loc.set(nodePath, propertyValue);
-		}
-		else {
+		} else {
 			CObject node = pathNodeMap.get(nodePath);
 			Object target = loc.itemAtPath(nodePath);
 			if (target == null) {
@@ -102,19 +99,44 @@ public enum ArchetypeManipulator {
 					
 					Setter setter = propertyAccessor.getSetter(tempTarget.getClass(), pathSegment);
 					if (klass.isPrimitive() || 
-							ClassUtils.wrapperToPrimitive(klass) != null || 
+							ClassUtils.wrapperToPrimitive(klass) != null ||
 							String.class.isAssignableFrom(klass) ||
 							Set.class.isAssignableFrom(klass)) {						
 						if (propertyValue instanceof Locatable) {
 							String uid = ((Locatable) propertyValue).getUid().getValue();
 							setter.set(tempTarget, uid, null);
 							loc.getAssociatedObjects().put(uid, propertyValue);
+						} else {
+							if (propertyValue instanceof String) {
+								if (Short.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, Short.parseShort((String) propertyValue), null);									
+								}
+								if (Integer.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, Integer.parseInt((String) propertyValue), null);									
+								}
+								if (Long.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, Long.parseLong((String) propertyValue), null);									
+								}
+								if (Float.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, Float.parseFloat((String) propertyValue), null);
+								}
+								if (Double.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, Double.parseDouble((String) propertyValue), null);
+								}
+								if (Boolean.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, Boolean.parseBoolean((String) propertyValue), null);
+								}
+								if (DateTime.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, DvDateTimeParser.parseDateTime((String) propertyValue), null);
+								}
+								if (String.class.isAssignableFrom(klass)) {
+									setter.set(tempTarget, propertyValue, null);
+								}
+							} else {
+								setter.set(tempTarget, propertyValue, null);
+							}
 						}
-						else {
-							setter.set(tempTarget, propertyValue, null);
-						}						
-					} 
-					else {
+					} else {
 						Object value = klass.newInstance();
 						setter.set(tempTarget, value, null);
 						tempTarget = value;								
