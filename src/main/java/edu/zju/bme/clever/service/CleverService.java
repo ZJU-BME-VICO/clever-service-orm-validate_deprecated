@@ -50,6 +50,14 @@ public interface CleverService {
 	List<String> select(String aql);
 
 	/**
+	 * @param aql
+	 * @return
+	 * -1 service running
+	 */
+	@WebMethod
+	long selectCount(String aql);
+
+	/**
 	 * @param dadls
 	 * @return
 	 * -1 service running

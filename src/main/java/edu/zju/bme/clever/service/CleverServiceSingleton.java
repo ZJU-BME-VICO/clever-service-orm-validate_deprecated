@@ -1,7 +1,5 @@
 package edu.zju.bme.clever.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,13 +21,12 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory;
 import org.hibernate.hql.spi.QueryTranslator;
 import org.hibernate.hql.spi.QueryTranslatorFactory;
-import org.openehr.am.parser.ContentObject;
-import org.openehr.am.parser.DADLParser;
 import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
 
 import edu.zju.bme.archetype2java.Archetype2Java;
 import edu.zju.bme.archetype2java.JavaClass;
+import edu.zju.bme.clever.service.util.ArchetypeManipulator;
 
 public enum CleverServiceSingleton {
 
@@ -85,9 +82,10 @@ public enum CleverServiceSingleton {
 			
 			Archetype2Java.INSTANCE.setClassFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath());
 			Archetype2Java.INSTANCE.setSourceFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath());
+			Archetype2Java.INSTANCE.setPackageName("edu.zju.bme.clever.service.model");
 
 			archetypes.forEach(a -> {
-				Archetype2Java.INSTANCE.addArchetype(a, "edu.zju.bme.clever.service.model");
+				Archetype2Java.INSTANCE.addArchetype(a);
 			});
 			Map<String, Class<?>> classes = Archetype2Java.INSTANCE.compile();
 			classes.values().forEach(c -> {
@@ -117,6 +115,13 @@ public enum CleverServiceSingleton {
 		logger.info("select");
 
 		logger.info(aql);
+		
+		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
+		
+		logger.info(hql);
+		
+		Session s = sessionFactory.openSession();
+		Transaction txn = s.beginTransaction();
 
 		try {
 			if (!getServiceStatus()) {
@@ -124,18 +129,13 @@ public enum CleverServiceSingleton {
 			}
 
 			long startTime = System.currentTimeMillis();
-			
-			Session s = sessionFactory.openSession();
-			Transaction txn = s.beginTransaction();
 
-			Query q = s.createQuery(aql);
+			Query q = s.createQuery(hql);
 			passParameters(q, parameters);
 			@SuppressWarnings("rawtypes")
 			List results = q.list();
 
-			s.flush();
 			txn.commit();
-			s.close();
 			
 			long endTime = System.currentTimeMillis();
 			logger.info("aql execute time (ms) : " + (endTime - startTime));
@@ -158,9 +158,18 @@ public enum CleverServiceSingleton {
 			
 			return dadlResults;
 		} catch (Exception e) {
+    		try {
+    			txn.rollback();
+    		} catch (Exception rbe) {
+    			logger.error("Couldn’t roll back transaction", rbe);
+    		}
 			logger.error(e);
 			return null;
-		}
+		} finally {
+    		if (s != null) {
+    			s.close();
+    		}
+    	}
 
 	}
 
@@ -180,12 +189,24 @@ public enum CleverServiceSingleton {
 				}
 			}
 		}
+		else {
+			generateReturnDADL(ArchetypeManipulator.INSTANCE.createArchetypeClassObject(obj), dadlResults);
+		}
 
 	}
 
-	public int insert(List<String> dadls) {
+	public long selectCount(String aql) {
 
-		logger.info("insert");
+		logger.info("selectCount");
+
+		logger.info(aql);
+		
+		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
+		
+		logger.info(hql);
+
+		Session s = sessionFactory.openSession();
+		Transaction txn = s.beginTransaction();
 
 		try {
 			if (!getServiceStatus()) {
@@ -194,35 +215,76 @@ public enum CleverServiceSingleton {
 
 			long startTime = System.currentTimeMillis();
 
-			List<Object> objects = new ArrayList<Object>();
+			Query q = s.createQuery(hql);
+			List<?> l = q.list();
+			long ret = (Long) l.get(0);
+
+			txn.commit();
+			
+			long endTime = System.currentTimeMillis();
+			logger.info("aql execute time (ms) : " + (endTime - startTime));
+			
+			logger.info(ret);
+
+			return ret;
+		} catch (Exception e) {
+    		try {
+    			txn.rollback();
+    		} catch (Exception rbe) {
+    			logger.error("Couldn’t roll back transaction", rbe);
+    		}
+			logger.error(e);
+			return -2;
+		} finally {
+    		if (s != null) {
+    			s.close();
+    		}
+    	}
+
+	}
+
+	public int insert(List<String> dadls) {
+
+		logger.info("insert");
+
+		Session s = sessionFactory.openSession();
+		Transaction txn = s.beginTransaction();
+
+		try {
+			if (!getServiceStatus()) {
+				return -1;
+			}
+
+			long startTime = System.currentTimeMillis();
+
+			List<Object> mappingObjects = new ArrayList<Object>();
 
 			for (String dadl : dadls) {
 				logger.info(dadl);
-				InputStream is = new ByteArrayInputStream(dadl.getBytes("UTF-8"));
-				DADLParser parser = new DADLParser(is);
-				ContentObject contentObj = parser.parse();
-				DADLBinding binding = new DADLBinding();
-				Object bp = binding.bind(contentObj);
-				objects.add(bp);
+				mappingObjects.add(ArchetypeManipulator.INSTANCE.createMappingClassObject(dadl));
 			}
 
-			Session s = sessionFactory.openSession();
-			Transaction txn = s.beginTransaction();
-
-			for (Object object : objects) {
+			for (Object object : mappingObjects) {
 				s.save(object);
 			}
 
-			s.flush();
 			txn.commit();
-			s.close();
 			
 			long endTime = System.currentTimeMillis();
 			logger.info("aql execute time (ms) : " + (endTime - startTime));
 		} catch (Exception e) {
+    		try {
+    			txn.rollback();
+    		} catch (Exception rbe) {
+    			logger.error("Couldn’t roll back transaction", rbe);
+    		}
 			logger.error(e);
 			return -2;
-		}
+		} finally {
+    		if (s != null) {
+    			s.close();
+    		}
+    	}
 
 		return 0;
 
@@ -257,6 +319,13 @@ public enum CleverServiceSingleton {
 		logger.info("executeUpdate");
 
 		logger.info(aql);
+		
+		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
+		
+		logger.info(hql);
+
+		Session s = sessionFactory.openSession();
+		Transaction txn = s.beginTransaction();
 
 		try {
 			if (!getServiceStatus()) {
@@ -265,16 +334,11 @@ public enum CleverServiceSingleton {
 
 			long startTime = System.currentTimeMillis();
 
-			Session s = sessionFactory.openSession();
-			Transaction txn = s.beginTransaction();
-
-			Query q = s.createQuery(aql);
+			Query q = s.createQuery(hql);
 			passParameters(q, parameters);
 			int ret = q.executeUpdate();
 
-			s.flush();
 			txn.commit();
-			s.close();
 			
 			long endTime = System.currentTimeMillis();
 			logger.info("aql execute time (ms) : " + (endTime - startTime));
@@ -283,9 +347,18 @@ public enum CleverServiceSingleton {
 
 			return ret;
 		} catch (Exception e) {
+    		try {
+    			txn.rollback();
+    		} catch (Exception rbe) {
+    			logger.error("Couldn’t roll back transaction", rbe);
+    		}
 			logger.error(e);
 			return -2;
-		}
+		} finally {
+    		if (s != null) {
+    			s.close();
+    		}
+    	}
 
 	}
 
@@ -311,19 +384,26 @@ public enum CleverServiceSingleton {
 			if (aql == null || aql.trim().length() <= 0) {
 				return null;
 			}
+			
+			logger.info(aql);
+			
+			String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
+			
+			logger.info(hql);
 
 			long startTime = System.currentTimeMillis();
 
 			final QueryTranslatorFactory translatorFactory = new ASTQueryTranslatorFactory();
 			final SessionFactoryImplementor factory = (SessionFactoryImplementor) sessionFactory;
 			final QueryTranslator translator = translatorFactory
-					.createQueryTranslator(aql, aql, Collections.EMPTY_MAP,
-							factory, null);
+					.createQueryTranslator(hql, hql, Collections.EMPTY_MAP, factory, null);
 			translator.compile(Collections.EMPTY_MAP, false);
 			List<String> sqls = translator.collectSqlStrings();
 			
 			long endTime = System.currentTimeMillis();
 			logger.info("aql execute time (ms) : " + (endTime - startTime));
+			
+			logger.info(sqls);
 
 			return sqls;
 		} catch (Exception e) {

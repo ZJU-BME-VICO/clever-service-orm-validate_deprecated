@@ -51,6 +51,13 @@ public class CleverServiceImpl implements CleverService {
 	}
 
 	@Override
+	public long selectCount(String aql) {
+
+		return CleverServiceSingleton.INSTANCE.selectCount(aql);
+
+	}
+
+	@Override
 	public int insert(List<String> dadls) {
 
 		return CleverServiceSingleton.INSTANCE.insert(dadls);
