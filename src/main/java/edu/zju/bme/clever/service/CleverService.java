@@ -7,6 +7,9 @@ import java.util.Set;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import edu.zju.bme.clever.service.util.MapAdapter;
 
 @WebService
 public interface CleverService {
@@ -50,8 +53,8 @@ public interface CleverService {
 	@WebMethod
 	List<String> select(String aql);
 
-	@WebMethod
-	List<String> select(String aql, Map<String, String> parameters);
+	@WebMethod	
+	List<String> selectParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
 
 	/**
 	 * @param aql
@@ -62,7 +65,7 @@ public interface CleverService {
 	long selectCount(String aql);
 
 	@WebMethod
-	long selectCount(String aql, Map<String, String> parameters);
+	long selectCountParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
 
 	/**
 	 * @param dadls
@@ -85,7 +88,7 @@ public interface CleverService {
 	int delete(String aql);
 
 	@WebMethod
-	int delete(String aql, Map<String, String> parameters);
+	int deleteParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
 
 	/**
 	 * @param aql
@@ -96,7 +99,7 @@ public interface CleverService {
 	int update(String aql);
 
 	@WebMethod
-	int update(String aql, Map<String, String> parameters);
+	int updateParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
 
 	/**
 	 * @param aql
