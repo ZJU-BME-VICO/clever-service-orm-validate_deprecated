@@ -18,7 +18,6 @@
 		<cxf.version>2.7.8</cxf.version>
 		<aspectj.version>1.7.4</aspectj.version>
 		<openEHR.version>1.0.5.3</openEHR.version>
-		<tomcat.port>9091</tomcat.port>
 		<tomcat.server>localhost</tomcat.server>
 		<dbserver>localhost</dbserver>
 	</properties>
@@ -28,6 +27,7 @@
 			<id>dev</id>
 			<properties>
 				<env>dev</env>
+				<tomcat.port>9091</tomcat.port>
 				<tomcat.url>http://${tomcat.server}:${tomcat.port}/manager/text</tomcat.url>
 				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-service-orm</database.url>
 				<database.username>sa</database.username>
@@ -41,6 +41,23 @@
 			<id>production</id>
 			<properties>
 				<env>production</env>
+			</properties>
+		</profile>		
+		<profile>
+			<id>dev-validate</id>
+			<properties>
+				<env>dev-validate</env>
+				<tomcat.port>9093</tomcat.port>
+				<tomcat.url>http://${tomcat.server}:${tomcat.port}/manager/text</tomcat.url>
+				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-service-orm-validate</database.url>
+				<database.username>sa</database.username>
+				<database.password>sa</database.password>
+			</properties>
+		</profile>
+		<profile>
+			<id>production-validate</id>
+			<properties>
+				<env>production-validate</env>
 			</properties>
 		</profile>
 	</profiles>
