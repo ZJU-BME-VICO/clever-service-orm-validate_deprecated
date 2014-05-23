@@ -2,6 +2,7 @@ package edu.zju.bme.clever.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jws.WebMethod;
@@ -49,6 +50,9 @@ public interface CleverService {
 	@WebMethod
 	List<String> select(String aql);
 
+	@WebMethod
+	List<String> select(String aql, Map<String, String> parameters);
+
 	/**
 	 * @param aql
 	 * @return
@@ -56,6 +60,9 @@ public interface CleverService {
 	 */
 	@WebMethod
 	long selectCount(String aql);
+
+	@WebMethod
+	long selectCount(String aql, Map<String, String> parameters);
 
 	/**
 	 * @param dadls
@@ -77,6 +84,9 @@ public interface CleverService {
 	@WebMethod
 	int delete(String aql);
 
+	@WebMethod
+	int delete(String aql, Map<String, String> parameters);
+
 	/**
 	 * @param aql
 	 * @return
@@ -84,6 +94,9 @@ public interface CleverService {
 	 */
 	@WebMethod
 	int update(String aql);
+
+	@WebMethod
+	int update(String aql, Map<String, String> parameters);
 
 	/**
 	 * @param aql

@@ -196,6 +196,11 @@ public enum CleverServiceSingleton {
 	}
 
 	public long selectCount(String aql) {
+		
+		return selectCount(aql, null);
+	}
+
+	public long selectCount(String aql, Map<String, Object> parameters) {
 
 		logger.info("selectCount");
 
@@ -216,6 +221,7 @@ public enum CleverServiceSingleton {
 			long startTime = System.currentTimeMillis();
 
 			Query q = s.createQuery(hql);
+			passParameters(q, parameters);
 			List<?> l = q.list();
 			long ret = (Long) l.get(0);
 

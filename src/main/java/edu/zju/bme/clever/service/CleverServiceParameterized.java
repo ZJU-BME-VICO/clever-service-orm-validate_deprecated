@@ -19,6 +19,9 @@ public interface CleverServiceParameterized {
 	 */
 	@WebMethod
 	List<String> select(String aql, Map<String, Object> parameters);
+
+	@WebMethod
+	long selectCount(String aql, Map<String, Object> parameters);
 	
 	/**
 	 * @param aql

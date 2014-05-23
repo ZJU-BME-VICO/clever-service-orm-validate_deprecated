@@ -2,7 +2,9 @@ package edu.zju.bme.clever.service.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -227,10 +229,26 @@ public enum ArchetypeManipulator {
 		return null;
 	}
 	
-	public String Aql2Hql(String aql) {		
-		String hql = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aql);
-		hql = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(hql);
-		hql = hql.replaceAll("#", ".");
+	public String Aql2Hql(String aql) {
+		List<String> aqlSegments = new ArrayList<String>();
+		while (aql.indexOf("'") > 0) {
+			int start = aql.indexOf("'");
+			int end = aql.indexOf("'", start + 1);
+			aqlSegments.add(aql.substring(0, start - 1));
+			aqlSegments.add(aql.substring(start, end + 1));
+			aql = aql.substring(end + 1);
+		}
+		aqlSegments.add(aql);
+		
+		String hql = "";
+		for (String aqlSegement : aqlSegments) {
+			if (!aqlSegement.startsWith("'")) {
+				aqlSegement = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aqlSegement);
+				aqlSegement = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(aqlSegement);
+				aqlSegement = aqlSegement.replaceAll("#", ".");
+			}
+			hql += aqlSegement;
+		}
 		return hql;
 	}
 

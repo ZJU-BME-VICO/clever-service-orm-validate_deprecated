@@ -1,7 +1,9 @@
 package edu.zju.bme.clever.service;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jws.WebService;
@@ -51,9 +53,27 @@ public class CleverServiceImpl implements CleverService {
 	}
 
 	@Override
+	public List<String> select(String aql, Map<String, String> parameters) {
+
+		Map<String, Object> p = new HashMap<String, Object>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.select(aql, p);
+
+	}
+
+	@Override
 	public long selectCount(String aql) {
 
 		return CleverServiceSingleton.INSTANCE.selectCount(aql);
+
+	}
+
+	@Override
+	public long selectCount(String aql, Map<String, String> parameters) {
+
+		Map<String, Object> p = new HashMap<String, Object>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.selectCount(aql, p);
 
 	}
 
@@ -72,9 +92,27 @@ public class CleverServiceImpl implements CleverService {
 	}
 
 	@Override
+	public int delete(String aql, Map<String, String> parameters) {
+
+		Map<String, Object> p = new HashMap<String, Object>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.delete(aql, p);
+
+	}
+
+	@Override
 	public int update(String aql) {
 
 		return CleverServiceSingleton.INSTANCE.update(aql);
+
+	}
+
+	@Override
+	public int update(String aql, Map<String, String> parameters) {
+
+		Map<String, Object> p = new HashMap<String, Object>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.update(aql, p);
 
 	}
 

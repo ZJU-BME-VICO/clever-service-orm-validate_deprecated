@@ -22,6 +22,13 @@ public class CleverServiceParameterizedImpl implements CleverServiceParameterize
 	}
 	
 	@Override
+	public long selectCount(String aql, Map<String, Object> parameters) {
+
+		return CleverServiceSingleton.INSTANCE.selectCount(aql, parameters);
+
+	}
+	
+	@Override
 	public int delete(String aql, Map<String, Object> parameters) {
 
 		return CleverServiceSingleton.INSTANCE.delete(aql, parameters);
