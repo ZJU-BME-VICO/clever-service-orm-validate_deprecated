@@ -55,7 +55,7 @@ public class CleverServiceImpl implements CleverService {
 	@Override
 	public List<String> selectParameterized(String aql, Map<String, String> parameters) {
 
-		Map<String, Object> p = new HashMap<String, Object>();
+		Map<String, Object> p = new HashMap<>();
 		p.putAll(parameters);
 		return CleverServiceSingleton.INSTANCE.select(aql, p);
 
@@ -71,7 +71,7 @@ public class CleverServiceImpl implements CleverService {
 	@Override
 	public long selectCountParameterized(String aql, Map<String, String> parameters) {
 
-		Map<String, Object> p = new HashMap<String, Object>();
+		Map<String, Object> p = new HashMap<>();
 		p.putAll(parameters);
 		return CleverServiceSingleton.INSTANCE.selectCount(aql, p);
 
@@ -94,7 +94,7 @@ public class CleverServiceImpl implements CleverService {
 	@Override
 	public int deleteParameterized(String aql, Map<String, String> parameters) {
 
-		Map<String, Object> p = new HashMap<String, Object>();
+		Map<String, Object> p = new HashMap<>();
 		p.putAll(parameters);
 		return CleverServiceSingleton.INSTANCE.delete(aql, p);
 
@@ -110,7 +110,7 @@ public class CleverServiceImpl implements CleverService {
 	@Override
 	public int updateParameterized(String aql, Map<String, String> parameters) {
 
-		Map<String, Object> p = new HashMap<String, Object>();
+		Map<String, Object> p = new HashMap<>();
 		p.putAll(parameters);
 		return CleverServiceSingleton.INSTANCE.update(aql, p);
 

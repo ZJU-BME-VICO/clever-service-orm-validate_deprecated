@@ -32,7 +32,7 @@ public enum CleverServiceSingleton {
 
 	INSTANCE;
 
-	private Logger logger = Logger.getLogger(CleverServiceSingleton.class.getName());
+	private final Logger logger = Logger.getLogger(CleverServiceSingleton.class.getName());
 
 	private Configuration cfg;
 	private SessionFactory sessionFactory;
@@ -142,7 +142,7 @@ public enum CleverServiceSingleton {
 
 			startTime = System.currentTimeMillis();
 			
-			List<String> dadlResults = new ArrayList<String>();
+			List<String> dadlResults = new ArrayList<>();
 			for (Object arr : results) {
 				if (arr.getClass().isArray()) {
 					for (int i = 0; i < Array.getLength(arr); i++) {
@@ -166,9 +166,7 @@ public enum CleverServiceSingleton {
 			logger.error(e);
 			return null;
 		} finally {
-    		if (s != null) {
-    			s.close();
-    		}
+            s.close();
     	}
 
 	}
@@ -242,9 +240,7 @@ public enum CleverServiceSingleton {
 			logger.error(e);
 			return -2;
 		} finally {
-    		if (s != null) {
-    			s.close();
-    		}
+            s.close();
     	}
 
 	}
@@ -263,16 +259,16 @@ public enum CleverServiceSingleton {
 
 			long startTime = System.currentTimeMillis();
 
-			List<Object> mappingObjects = new ArrayList<Object>();
+			List<Object> mappingObjects = new ArrayList<>();
 
 			for (String dadl : dadls) {
 				logger.info(dadl);
 				mappingObjects.add(ArchetypeManipulator.INSTANCE.createMappingClassObject(dadl));
 			}
-
-			for (Object object : mappingObjects) {
-				s.save(object);
-			}
+            
+            mappingObjects.forEach((object) -> {
+                s.save(object);
+            });
 
 			txn.commit();
 			
@@ -287,9 +283,7 @@ public enum CleverServiceSingleton {
 			logger.error(e);
 			return -2;
 		} finally {
-    		if (s != null) {
-    			s.close();
-    		}
+            s.close();
     	}
 
 		return 0;
@@ -361,9 +355,7 @@ public enum CleverServiceSingleton {
 			logger.error(e);
 			return -2;
 		} finally {
-    		if (s != null) {
-    			s.close();
-    		}
+            s.close();
     	}
 
 	}

@@ -22,8 +22,8 @@ import edu.zju.bme.clever.service.util.ArchetypeManipulator;
 import se.acode.openehr.parser.ADLParser;
 
 public class CleverServiceTestBase {
-	protected Map<String, String> archetypes = new LinkedHashMap<String, String>();
-	protected Map<String, String> arms = new LinkedHashMap<String, String>();
+	protected Map<String, String> archetypes = new LinkedHashMap<>();
+	protected Map<String, String> arms = new LinkedHashMap<>();
 	protected CleverServiceImpl cleverImpl = new CleverServiceImpl();
 	protected CleverServiceParameterizedImpl aqlParameterizedImpl = new CleverServiceParameterizedImpl();
 
@@ -100,10 +100,10 @@ public class CleverServiceTestBase {
 	}
 
 	protected List<Map<HashMap<String, Object>, String>> getArchetypeValues() {
-		Map<HashMap<String, Object>, String> patients = new HashMap<HashMap<String, Object>, String>();
+		Map<HashMap<String, Object>, String> patients = new HashMap<>();
 
 		{
-			HashMap<String, Object> patient1 = new HashMap<String, Object>();
+			HashMap<String, Object> patient1 = new HashMap<>();
 			patient1.put("/uid/value", "patient1");
 			patient1.put("/details[at0001]/items[at0003]/value/value", "M");
 			patient1.put("/details[at0001]/items[at0004]/value/value",
@@ -114,7 +114,7 @@ public class CleverServiceTestBase {
 		}
 
 		{
-			HashMap<String, Object> patient2 = new HashMap<String, Object>();
+			HashMap<String, Object> patient2 = new HashMap<>();
 			patient2.put("/uid/value", "patient2");
 			patient2.put("/details[at0001]/items[at0003]/value/value", "F");
 			patient2.put("/details[at0001]/items[at0004]/value/value",
@@ -124,7 +124,7 @@ public class CleverServiceTestBase {
 		}
 
 		{
-			HashMap<String, Object> patient3 = new HashMap<String, Object>();
+			HashMap<String, Object> patient3 = new HashMap<>();
 			patient3.put("/uid/value", "patient3");
 			patient3.put("/details[at0001]/items[at0003]/value/value", "O");
 			patient3.put("/details[at0001]/items[at0004]/value/value",
@@ -133,10 +133,10 @@ public class CleverServiceTestBase {
 			patients.put(patient3, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
 		}
 
-		Map<HashMap<String, Object>, String> visits = new HashMap<HashMap<String, Object>, String>();
+		Map<HashMap<String, Object>, String> visits = new HashMap<>();
 
 		{
-			HashMap<String, Object> visit1 = new HashMap<String, Object>();
+			HashMap<String, Object> visit1 = new HashMap<>();
 			visit1.put("/uid/value", "visit1");
 			visit1.put(
 					"/context/other_context[at0001]/items[at0007]/value/value",
@@ -151,7 +151,7 @@ public class CleverServiceTestBase {
 		}
 
 		{
-			HashMap<String, Object> visit2 = new HashMap<String, Object>();
+			HashMap<String, Object> visit2 = new HashMap<>();
 			visit2.put("/uid/value", "visit2");
 			visit2.put(
 					"/context/other_context[at0001]/items[at0007]/value/value",
@@ -163,7 +163,7 @@ public class CleverServiceTestBase {
 		}
 
 		{
-			HashMap<String, Object> visit3 = new HashMap<String, Object>();
+			HashMap<String, Object> visit3 = new HashMap<>();
 			visit3.put("/uid/value", "visit3");
 			visit3.put(
 					"/context/other_context[at0001]/items[at0007]/value/value",
@@ -174,10 +174,10 @@ public class CleverServiceTestBase {
 			visits.put(visit3, "openEHR-EHR-COMPOSITION.visit.v3");
 		}
 
-		Map<HashMap<String, Object>, String> others = new HashMap<HashMap<String, Object>, String>();
+		Map<HashMap<String, Object>, String> others = new HashMap<>();
 
 		{
-			HashMap<String, Object> other_cognitions_scale_exams1 = new HashMap<String, Object>();
+			HashMap<String, Object> other_cognitions_scale_exams1 = new HashMap<>();
 			other_cognitions_scale_exams1.put("/uid/value",
 					"other_cognitions_scale_exams1");
 			other_cognitions_scale_exams1
@@ -197,7 +197,7 @@ public class CleverServiceTestBase {
 		}
 
 		{
-			HashMap<String, Object> mmse1 = new HashMap<String, Object>();
+			HashMap<String, Object> mmse1 = new HashMap<>();
 			mmse1.put("/uid/value", "mmse1");
 			mmse1.put(
 					"/data[at0001]/events[at0002]/data[at0003]/items[at0004]/items[at0005]/value/value",
@@ -211,7 +211,7 @@ public class CleverServiceTestBase {
 			others.put(mmse1, "openEHR-EHR-OBSERVATION.mmse.v1");
 		}
 
-		List<Map<HashMap<String, Object>, String>> results = new ArrayList<Map<HashMap<String, Object>, String>>();
+		List<Map<HashMap<String, Object>, String>> results = new ArrayList<>();
 		results.add(patients);
 		results.add(visits);
 		results.add(others);
@@ -224,7 +224,7 @@ public class CleverServiceTestBase {
 
 		List<Map<HashMap<String, Object>, String>> list = getArchetypeValues();
 		for (Map<HashMap<String, Object>, String> archetypeValues : list) {
-			List<String> dadls = new ArrayList<String>();
+			List<String> dadls = new ArrayList<>();
 
 			for (HashMap<String, Object> values : archetypeValues.keySet()) {
 				String archetypeId = archetypeValues.get(values);
@@ -245,25 +245,23 @@ public class CleverServiceTestBase {
 	}
 
 	protected void cleanTestBaseData() {
-		for (String str : archetypes.keySet()) {
-			String aql = String.format("delete from %s as o", str);
-			aqlParameterizedImpl.delete(aql, null);
-		}
+        archetypes.keySet().stream().map((str) -> String.format("delete from %s as o", str)).forEach((aql) -> {
+            aqlParameterizedImpl.delete(aql, null);
+        });
 	}
 
 	protected static String readLines(String name) throws IOException {
 		StringBuilder result = new StringBuilder();
 		File file = new File(name);
 		InputStream is = new FileInputStream(file);
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-		String line = reader.readLine();
-		while (line != null) {
-			result.append(line);
-			result.append("\n");
-			line = reader.readLine();
-		}
-		reader.close();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            String line = reader.readLine();
+            while (line != null) {
+                result.append(line);
+                result.append("\n");
+                line = reader.readLine();
+            }
+        }
 		
 		return result.toString();
 	}

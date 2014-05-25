@@ -213,7 +213,7 @@ public enum ArchetypeManipulator {
 		JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		SkeletonGenerator generator = SkeletonGenerator.getInstance();
 		Object result = generator.create(mappingClass.getArchetype(), GenerationStrategy.MAXIMUM_EMPTY);
-		Map<String, Object> values = new HashMap<String, Object>();
+		Map<String, Object> values = new HashMap<>();
 		mappingClass.getFields().forEach(f -> {
 			try {
 				values.put(f.getArchetypePath(), compiledMappingClass.getField(f.getName()).get(obj));
@@ -230,7 +230,7 @@ public enum ArchetypeManipulator {
 	}
 	
 	public String Aql2Hql(String aql) {
-		List<String> aqlSegments = new ArrayList<String>();
+		List<String> aqlSegments = new ArrayList<>();
 		while (aql.indexOf("'") > 0) {
 			int start = aql.indexOf("'");
 			int end = aql.indexOf("'", start + 1);
@@ -240,15 +240,17 @@ public enum ArchetypeManipulator {
 		}
 		aqlSegments.add(aql);
 		
+        
 		String hql = "";
-		for (String aqlSegement : aqlSegments) {
-			if (!aqlSegement.startsWith("'")) {
-				aqlSegement = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aqlSegement);
-				aqlSegement = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(aqlSegement);
-				aqlSegement = aqlSegement.replaceAll("#", ".");
-			}
-			hql += aqlSegement;
-		}
+        hql = aqlSegments.stream().map((aqlSegement) -> {
+            if (!aqlSegement.startsWith("'")) {
+                aqlSegement = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aqlSegement);
+                aqlSegement = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(aqlSegement);
+                aqlSegement = aqlSegement.replaceAll("#", ".");
+            }
+            return aqlSegement;
+        }).map((aqlSegement) -> aqlSegement).reduce(hql, String::concat);
+        
 		return hql;
 	}
 

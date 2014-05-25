@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD) 
 public class MapConvertor
 {
-    private List<MapEntry> entries = new ArrayList<MapEntry>();
+    private List<MapEntry> entries = new ArrayList<>();
  
     public void addEntry(MapEntry entry)
     {

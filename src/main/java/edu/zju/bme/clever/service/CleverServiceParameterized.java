@@ -11,11 +11,9 @@ public interface CleverServiceParameterized {
 
 	/**
 	 * @param aql
-	 * @param listParameterName
-	 * @param listParameterValue
+     * @param parameters
 	 * @return
 	 * -1 service running
-	 * @throws Exception
 	 */
 	@WebMethod
 	List<String> select(String aql, Map<String, Object> parameters);

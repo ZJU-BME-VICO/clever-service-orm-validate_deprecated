@@ -29,7 +29,7 @@ public class CleverServicePerformanceTest extends CleverServiceTestBase {
 		createTestBaseData();
 
 		long start = System.currentTimeMillis();
-		List<String> dadls = new ArrayList<String>();
+		List<String> dadls = new ArrayList<>();
 		for (int i = 0; i < 1000; i++) {
 			if (i % 100 == 0) {
 				System.out.println(i);				

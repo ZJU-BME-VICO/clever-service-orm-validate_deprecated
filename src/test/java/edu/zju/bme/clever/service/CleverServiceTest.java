@@ -93,7 +93,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "delete "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
 					+ "where o#/uid/value = :name";
-			Map<String, Object> parameters = new HashMap<String, Object>();
+			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("name", "visit2");
 			int ret = aqlParameterizedImpl.delete(query, parameters);
 
@@ -137,9 +137,9 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			List<String> sqls = cleverImpl.getSQL(query);
 
 			assertTrue(sqls.size() > 0);
-			for (String sql : sqls) {
-				System.out.println(sql);				
-			}
+            sqls.stream().forEach((sql) -> {
+                System.out.println(sql);
+            });
 		}
 
 		{
@@ -149,9 +149,9 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			List<String> sqls = cleverImpl.getSQL(query);
 
 			assertTrue(sqls.size() > 0);
-			for (String sql : sqls) {
-				System.out.println(sql);				
-			}
+            sqls.stream().forEach((sql) -> {
+                System.out.println(sql);
+            });
 		}
 
 		{
@@ -162,9 +162,9 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			List<String> sqls = cleverImpl.getSQL(query);
 
 			assertTrue(sqls.size() > 0);
-			for (String sql : sqls) {
-				System.out.println(sql);				
-			}
+            sqls.stream().forEach((sql) -> {
+                System.out.println(sql);
+            });
 		}
 
 		{
@@ -174,9 +174,9 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			List<String> sqls = cleverImpl.getSQL(query);
 
 			assertTrue(sqls.size() > 0);
-			for (String sql : sqls) {
-				System.out.println(sql);				
-			}
+            sqls.stream().forEach((sql) -> {
+                System.out.println(sql);
+            });
 		}
 
 		cleanTestBaseData();
@@ -198,7 +198,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		cleanTestBaseData();
 		createTestBaseData();
 
-		List<String> dadls = new ArrayList<String>();
+		List<String> dadls = new ArrayList<>();
 		for (String dadl : getDadlFiles()) {
 			File file = new File(dadl);
 			InputStream is = new FileInputStream(file);
@@ -446,8 +446,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 6);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -475,8 +475,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 5);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -516,8 +516,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 5);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -557,8 +557,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 5);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -586,8 +586,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 5);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -627,8 +627,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 3);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -656,8 +656,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 5);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -697,8 +697,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 2);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -726,8 +726,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 5);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -755,8 +755,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 3);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -784,8 +784,8 @@ public class CleverServiceTest extends CleverServiceTestBase {
 
 			assertEquals(results.size(), 6);
 
-			List<String> patients = new ArrayList<String>();
-			List<String> visits = new ArrayList<String>();
+			List<String> patients = new ArrayList<>();
+			List<String> visits = new ArrayList<>();
 			for (String arr : results) {
 				DADLParser parser = new DADLParser(arr);
 				ContentObject contentObj = parser.parse();
@@ -821,7 +821,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "select o "
 					+ "from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as o "
 					+ "where o#/details[at0001]/items[at0009]/value/value = :name";
-			Map<String, Object> parameters = new HashMap<String, Object>();
+			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("name", "lisi");
 			List<String> results = aqlParameterizedImpl.select(query, parameters);
 
@@ -847,7 +847,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "select o "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
 					+ "where o#/uid/value = :VisitId and o#/context/other_context[at0001]/items[at0015]/value/value = :PatientId";
-			Map<String, Object> parameters = new HashMap<String, Object>();
+			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("VisitId", "visit1");
 			parameters.put("PatientId", "patient1");
 			List<String> results = aqlParameterizedImpl.select(query, parameters);
@@ -1003,7 +1003,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					+ "o#/details[at0001]/items[at0009]/value/value = :name, "
 					+ "o#/details[at0001]/items[at0004]/value/value = :birthday "
 					+ "where o#/uid/value = :pid";
-			Map<String, Object> parameters = new HashMap<String, Object>();
+			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("name", "lisi");
 			parameters.put("birthday", "1994-08-11T19:20:30+08:00");
 			parameters.put("pid", "patient1");

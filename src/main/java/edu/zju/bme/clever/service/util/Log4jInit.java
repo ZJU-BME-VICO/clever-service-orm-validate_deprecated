@@ -15,6 +15,7 @@ public class Log4jInit extends HttpServlet {
 	public Log4jInit() {
 	}
 
+    @Override
 	public void init(ServletConfig config) {
 		String prefix = config.getServletContext().getRealPath("/");
 		String file = config.getInitParameter("log4j");
@@ -29,7 +30,6 @@ public class Log4jInit extends HttpServlet {
 			props.setProperty("log4j.appender.R.File", logFile);
 			PropertyConfigurator.configure(props);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 

@@ -35,6 +35,8 @@ public interface CleverService {
 	boolean getServiceStatus();
 
 	/**
+     * @param archetypes
+     * @param arms
 	 * @return
 	 * 0 success
 	 * -1 service running
@@ -45,10 +47,8 @@ public interface CleverService {
 
 	/**
 	 * @param aql
-	 * @param archetypeId
 	 * @return
 	 * -1 service running
-	 * @throws Exception
 	 */
 	@WebMethod
 	List<String> select(String aql);
@@ -71,10 +71,6 @@ public interface CleverService {
 	 * @param dadls
 	 * @return
 	 * -1 service running
-	 * @throws UnsupportedEncodingException
-	 * @throws ParseException
-	 * @throws RMObjectBuildingException
-	 * @throws DADLBindingException
 	 */
 	@WebMethod
 	int insert(List<String> dadls);
