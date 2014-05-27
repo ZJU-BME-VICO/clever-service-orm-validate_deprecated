@@ -1,7 +1,5 @@
 package edu.zju.bme.clever.service.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +20,8 @@ import org.hibernate.property.Setter;
 import org.joda.time.DateTime;
 import org.openehr.am.archetype.Archetype;
 import org.openehr.am.archetype.constraintmodel.CObject;
-import org.openehr.am.parser.ContentObject;
-import org.openehr.am.parser.DADLParser;
 import org.openehr.build.RMObjectBuilder;
 import org.openehr.build.SystemValue;
-import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
 import org.openehr.rm.datatypes.quantity.datetime.DvDateTimeParser;
 import org.openehr.rm.datatypes.text.CodePhrase;
@@ -39,7 +34,6 @@ import org.openehr.terminology.SimpleTerminologyService;
 
 import edu.zju.bme.archetype2java.Archetype2Java;
 import edu.zju.bme.archetype2java.JavaClass;
-import edu.zju.bme.archetype2java.JavaField;
 
 public enum ArchetypeManipulator {
 
@@ -177,52 +171,30 @@ public enum ArchetypeManipulator {
 		return nodePath;
 	}
 	
-	public Object createMappingClassObject(String dadl) throws Exception {
-		InputStream is = new ByteArrayInputStream(dadl.getBytes("UTF-8"));
-		DADLParser parser = new DADLParser(is);
-		ContentObject contentObj = parser.parse();
-		DADLBinding binding = new DADLBinding();
-		Object bp = binding.bind(contentObj);
-		
-		if (bp instanceof Locatable) {
-			return ArchetypeManipulator.INSTANCE.createMappingClassObject((Locatable) bp);
-		}
-		
-		return null;
-	}
-	
-	public Object createMappingClassObject(Locatable loc) throws Exception {
-		String archetypeId = loc.getArchetypeDetails().getArchetypeId().getValue();
-		String mappingClassName = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(archetypeId);
-		Class<?> compiledMappingClass = Archetype2Java.INSTANCE.getCompiledMappingClassFromMappingClassName(mappingClassName);
-		Object mappingClassObject = compiledMappingClass.newInstance();
-		JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromArchetypeId(archetypeId);
-		Set<JavaField> mappingClassFields = mappingClass.getFields();
-		mappingClassFields.forEach(f -> {
-			try {
-				compiledMappingClass.getField(f.getName()).set(mappingClassObject, loc.itemAtPath(f.getArchetypePath()));
-			} catch (Exception e) {
-				logger.error("createMappingClassObject", e);
-			}
-		});
-		return mappingClassObject;
-	}
-	
 	public Object createArchetypeClassObject(Object obj) throws Exception {
 		Class<?> compiledMappingClass = Archetype2Java.INSTANCE.getCompiledMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		SkeletonGenerator generator = SkeletonGenerator.getInstance();
-		Object result = generator.create(mappingClass.getArchetype(), GenerationStrategy.MAXIMUM_EMPTY);
-		Map<String, Object> values = new HashMap<>();
-		mappingClass.getFields().forEach(f -> {
-			try {
-				values.put(f.getArchetypePath(), compiledMappingClass.getField(f.getName()).get(obj));
-			} catch (Exception e) {
-				logger.error("createArchetypeClassObject", e);
-			}
-		});
+		Object result = generator.create(mappingClass.getArchetype(), GenerationStrategy.MAXIMUM_EMPTY);		
 		if (result instanceof Locatable) {
 			Locatable loc = (Locatable) result;
+			Map<String, Object> values = new HashMap<>();
+			mappingClass.getFields().forEach(f -> {
+				try {
+	                JavaClass fieldMappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(f.getType());
+	                if (fieldMappingClass != null) {
+	                	Locatable fieldLoc = (Locatable) this.createArchetypeClassObject(compiledMappingClass.getField(f.getName()).get(obj));
+	                	if (fieldLoc != null) {
+	                		values.put(f.getArchetypePath(), fieldLoc.getUid().getValue());
+	                		loc.getAssociatedObjects().put(fieldLoc.getUid().getValue(), fieldLoc);
+						}
+					} else {
+						values.put(f.getArchetypePath(), compiledMappingClass.getField(f.getName()).get(obj));
+					}
+				} catch (Exception e) {
+					logger.error("createArchetypeClassObject", e);
+				}
+			});
 			ArchetypeManipulator.INSTANCE.setArchetypeValues(loc, values, mappingClass.getArchetype());
 			return loc;
 		}

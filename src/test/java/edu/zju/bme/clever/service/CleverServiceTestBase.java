@@ -100,38 +100,6 @@ public class CleverServiceTestBase {
 	}
 
 	protected List<Map<HashMap<String, Object>, String>> getArchetypeValues() {
-		Map<HashMap<String, Object>, String> patients = new HashMap<>();
-
-		{
-			HashMap<String, Object> patient1 = new HashMap<>();
-			patient1.put("/uid/value", "patient1");
-			patient1.put("/details[at0001]/items[at0003]/value/value", "M");
-			patient1.put("/details[at0001]/items[at0004]/value/value",
-					"1984-08-11T19:20:30+08:00");
-			patient1.put("/details[at0001]/items[at0009]/value/value",
-					"zhangsan");
-			patients.put(patient1, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
-		}
-
-		{
-			HashMap<String, Object> patient2 = new HashMap<>();
-			patient2.put("/uid/value", "patient2");
-			patient2.put("/details[at0001]/items[at0003]/value/value", "F");
-			patient2.put("/details[at0001]/items[at0004]/value/value",
-					"1986-08-11T19:20:30+08:00");
-			patient2.put("/details[at0001]/items[at0009]/value/value", "lisi");
-			patients.put(patient2, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
-		}
-
-		{
-			HashMap<String, Object> patient3 = new HashMap<>();
-			patient3.put("/uid/value", "patient3");
-			patient3.put("/details[at0001]/items[at0003]/value/value", "O");
-			patient3.put("/details[at0001]/items[at0004]/value/value",
-					"1988-08-11T19:20:30+08:00");
-			patient3.put("/details[at0001]/items[at0009]/value/value", "wangwu");
-			patients.put(patient3, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
-		}
 
 		Map<HashMap<String, Object>, String> visits = new HashMap<>();
 
@@ -172,6 +140,39 @@ public class CleverServiceTestBase {
 					"/context/other_context[at0001]/items[at0015]/value/value",
 					"patient2");
 			visits.put(visit3, "openEHR-EHR-COMPOSITION.visit.v3");
+		}
+		
+		Map<HashMap<String, Object>, String> patients = new HashMap<>();
+
+		{
+			HashMap<String, Object> patient1 = new HashMap<>();
+			patient1.put("/uid/value", "patient1");
+			patient1.put("/details[at0001]/items[at0003]/value/value", "M");
+			patient1.put("/details[at0001]/items[at0004]/value/value",
+					"1984-08-11T19:20:30+08:00");
+			patient1.put("/details[at0001]/items[at0009]/value/value",
+					"zhangsan");
+			patients.put(patient1, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
+		}
+
+		{
+			HashMap<String, Object> patient2 = new HashMap<>();
+			patient2.put("/uid/value", "patient2");
+			patient2.put("/details[at0001]/items[at0003]/value/value", "F");
+			patient2.put("/details[at0001]/items[at0004]/value/value",
+					"1986-08-11T19:20:30+08:00");
+			patient2.put("/details[at0001]/items[at0009]/value/value", "lisi");
+			patients.put(patient2, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
+		}
+
+		{
+			HashMap<String, Object> patient3 = new HashMap<>();
+			patient3.put("/uid/value", "patient3");
+			patient3.put("/details[at0001]/items[at0003]/value/value", "O");
+			patient3.put("/details[at0001]/items[at0004]/value/value",
+					"1988-08-11T19:20:30+08:00");
+			patient3.put("/details[at0001]/items[at0009]/value/value", "wangwu");
+			patients.put(patient3, "openEHR-DEMOGRAPHIC-PERSON.patient.v1");
 		}
 
 		Map<HashMap<String, Object>, String> others = new HashMap<>();
@@ -217,14 +218,15 @@ public class CleverServiceTestBase {
 		results.add(others);
 
 		return results;
+		
 	}
 
 	protected void createTestBaseData() throws Exception {
 		DADLBinding binding = new DADLBinding();
 
 		List<Map<HashMap<String, Object>, String>> list = getArchetypeValues();
+		List<String> dadls = new ArrayList<>();
 		for (Map<HashMap<String, Object>, String> archetypeValues : list) {
-			List<String> dadls = new ArrayList<>();
 
 			for (HashMap<String, Object> values : archetypeValues.keySet()) {
 				String archetypeId = archetypeValues.get(values);
@@ -239,9 +241,8 @@ public class CleverServiceTestBase {
 					dadls.add(binding.toDADLString(loc));
 				}
 			}
-
-			cleverImpl.insert(dadls);
 		}
+		cleverImpl.insert(dadls);
 	}
 
 	protected void cleanTestBaseData() {

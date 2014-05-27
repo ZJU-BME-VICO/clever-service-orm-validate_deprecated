@@ -1,5 +1,7 @@
 package edu.zju.bme.clever.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,11 +23,14 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory;
 import org.hibernate.hql.spi.QueryTranslator;
 import org.hibernate.hql.spi.QueryTranslatorFactory;
+import org.openehr.am.parser.ContentObject;
+import org.openehr.am.parser.DADLParser;
 import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
 
 import edu.zju.bme.archetype2java.Archetype2Java;
 import edu.zju.bme.archetype2java.JavaClass;
+import edu.zju.bme.archetype2java.JavaField;
 import edu.zju.bme.clever.service.util.ArchetypeManipulator;
 
 public enum CleverServiceSingleton {
@@ -258,17 +263,27 @@ public enum CleverServiceSingleton {
 			}
 
 			long startTime = System.currentTimeMillis();
-
-			List<Object> mappingObjects = new ArrayList<>();
+			
+			DADLBinding binding = new DADLBinding();
+			List<String> archetypeIds = new ArrayList<>();
+			List<Locatable> dadlObjects = new ArrayList<>();
 
 			for (String dadl : dadls) {
 				logger.info(dadl);
-				mappingObjects.add(ArchetypeManipulator.INSTANCE.createMappingClassObject(dadl));
+				
+				InputStream is = new ByteArrayInputStream(dadl.getBytes("UTF-8"));
+				DADLParser parser = new DADLParser(is);
+				ContentObject contentObj = parser.parse();
+				Object bp = binding.bind(contentObj);
+
+				if (bp instanceof Locatable) {
+					Locatable loc = (Locatable) bp;
+					archetypeIds.add(loc.getArchetypeDetails().getArchetypeId().getValue());
+					dadlObjects.add(loc);
+				}
 			}
             
-            mappingObjects.forEach((object) -> {
-                s.save(object);
-            });
+            this.insert(archetypeIds, dadlObjects, s);
 
 			txn.commit();
 			
@@ -288,6 +303,64 @@ public enum CleverServiceSingleton {
 
 		return 0;
 
+	}
+	
+	private void insert(List<String> archetypeIds, List<Locatable> dadlObjects, Session s) throws Exception {
+        if (archetypeIds.size() <= 0) {
+            return;
+        }
+
+        List<Object> mappingClassObjects = new ArrayList<>();
+		List<String> archetypeIdsLeft = new ArrayList<>();
+		List<Locatable> dadlObjectsLeft = new ArrayList<>();
+		
+		for (int i = 0; i < archetypeIds.size(); i++) {
+			String archetypeId = archetypeIds.get(i);
+			Locatable loc = dadlObjects.get(i);
+			String mappingClassName = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(archetypeId);
+            Class<?> compiledMappingClass = Archetype2Java.INSTANCE.getCompiledMappingClassFromMappingClassName(mappingClassName);
+            try {
+                Object mappingClassObject = compiledMappingClass.newInstance();
+                JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromArchetypeId(archetypeId);
+                Set<JavaField> mappingClassFields = mappingClass.getFields();
+                mappingClassFields.forEach(f -> {
+                    try {
+                        JavaClass fieldMappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(f.getType());
+                        if (fieldMappingClass != null) {
+                        	String aql = "from " + fieldMappingClass.getArchetypeName() + " where /uid/value = '" + loc.itemAtPath(f.getArchetypePath()) + "'";
+                        	String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
+                            Query q = s.createQuery(hql);
+                            List<?> results = q.list();
+                            if (results.size() <= 0) {
+                            	archetypeIdsLeft.add(archetypeId);
+                            	dadlObjectsLeft.add(loc);
+                            } else {
+                                compiledMappingClass.getField(f.getName()).set(mappingClassObject, results.get(0));
+                            }
+                        } else {
+                            compiledMappingClass.getField(f.getName()).set(mappingClassObject, loc.itemAtPath(f.getArchetypePath()));
+                        }
+                    } catch (Exception e) {
+                        logger.error("insert", e);
+                    }
+                });
+                mappingClassObjects.add(mappingClassObject);
+            } catch (Exception e) {
+                logger.error("insert", e);                
+            }
+		}
+        
+        if (archetypeIdsLeft.size() == archetypeIds.size()) {
+            throw new Exception("DADL insert failed: size = " + archetypeIdsLeft.size());
+        }
+        
+        for (int i = 0; i < dadlObjects.size(); i++) {
+			if (!dadlObjectsLeft.contains(dadlObjects.get(i))) {
+				s.save(mappingClassObjects.get(i));
+			}
+		}
+        
+        this.insert(archetypeIdsLeft, dadlObjectsLeft, s);
 	}
 
 	public int delete(String aql) {

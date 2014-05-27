@@ -2,24 +2,17 @@ package edu.zju.bme.clever.service;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-
 import org.junit.Test;
 import org.openehr.am.parser.ContentObject;
 import org.openehr.am.parser.DADLParser;
 import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
-import org.openehr.rm.composition.content.entry.Observation;
-import org.openehr.rm.support.identification.HierObjectID;
 
 public class CleverServiceTest extends CleverServiceTestBase {
 
@@ -38,13 +31,13 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "from openEHR-EHR-COMPOSITION.visit.v3 as o ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 3);
+			assertEquals(results.size(), 5);
 		}
 
 		{
 			String query = "delete "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
-					+ "where o#/uid/value = 'visit2'";
+					+ "where o#/uid/value = 'visit3'";
 			int ret = cleverImpl.delete(query);
 
 			assertEquals(ret, 1);
@@ -54,7 +47,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "from openEHR-EHR-COMPOSITION.visit.v3 as o ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 2);
+			assertEquals(results.size(), 3);
 		}
 
 		{
@@ -86,7 +79,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "from openEHR-EHR-COMPOSITION.visit.v3 as o ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 3);
+			assertEquals(results.size(), 5);
 		}
 
 		{
@@ -94,7 +87,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
 					+ "where o#/uid/value = :name";
 			Map<String, Object> parameters = new HashMap<>();
-			parameters.put("name", "visit2");
+			parameters.put("name", "visit3");
 			int ret = aqlParameterizedImpl.delete(query, parameters);
 
 			assertEquals(ret, 1);
@@ -104,7 +97,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "from openEHR-EHR-COMPOSITION.visit.v3 as o ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 2);
+			assertEquals(results.size(), 3);
 		}
 
 		{
@@ -189,35 +182,6 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		Set<String> archetypeIds = cleverImpl.getArchetypeIds();
 		assertTrue(archetypeIds.containsAll(archetypes.keySet()));
 		assertTrue(archetypes.keySet().containsAll(archetypeIds));
-	}
-
-	@Test
-	public void testInsert() throws Exception {
-		reconfigure();
-
-		cleanTestBaseData();
-		createTestBaseData();
-
-		List<String> dadls = new ArrayList<>();
-		for (String dadl : getDadlFiles()) {
-			File file = new File(dadl);
-			InputStream is = new FileInputStream(file);
-			DADLParser parser = new DADLParser(is);
-			ContentObject contentObj = parser.parse();
-			DADLBinding binding = new DADLBinding();
-			Observation bp = (Observation) binding.bind(contentObj);
-			UUID uuid = UUID.randomUUID();
-			HierObjectID uid = new HierObjectID(uuid.toString());
-			bp.setUid(uid);
-			dadls.add(binding.toDADLString(bp));
-		}
-
-		cleverImpl.insert(dadls);
-
-		String query = "from openEHR-EHR-OBSERVATION.blood_pressure.v1 as o";
-		assertEquals(cleverImpl.select(query).size(), 2);
-
-		cleanTestBaseData();
 	}
 
 	@Test
@@ -334,19 +298,10 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select o "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
-					+ "where o#/context/other_context[at0001]/items[at0015]/value/value = 'patient1'";
+					+ "where o#/uid/value = 'visit1'";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 2);
-		}
-
-		{
-			String query = "select o "
-					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
-					+ "where o#/uid/value = 'visit1' and o#/context/other_context[at0001]/items[at0015]/value/value = 'patient1'";
-			List<String> results = cleverImpl.select(query);
-
-			assertEquals(results.size(), 1);
 		}
 
 		cleanTestBaseData();
@@ -444,7 +399,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p, openEHR-EHR-COMPOSITION.visit.v3 as v ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 6);
+			assertEquals(results.size(), 12);
 
 			List<String> patients = new ArrayList<>();
 			List<String> visits = new ArrayList<>();
@@ -464,7 +419,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			}
 
 			assertEquals(patients.size(), 3);
-			assertEquals(visits.size(), 3);
+			assertEquals(visits.size(), 9);
 		}
 
 		{
@@ -625,7 +580,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					"join v#/context/other_context[at0001]/items[at0015]/value/value as p ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 3);
+			assertEquals(results.size(), 5);
 
 			List<String> patients = new ArrayList<>();
 			List<String> visits = new ArrayList<>();
@@ -644,7 +599,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 				}
 			}
 
-			assertEquals(patients.size(), 0);
+			assertEquals(patients.size(), 2);
 			assertEquals(visits.size(), 3);
 		}
 
@@ -846,13 +801,12 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select o "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
-					+ "where o#/uid/value = :VisitId and o#/context/other_context[at0001]/items[at0015]/value/value = :PatientId";
+					+ "where o#/uid/value = :VisitId";
 			Map<String, Object> parameters = new HashMap<>();
 			parameters.put("VisitId", "visit1");
-			parameters.put("PatientId", "patient1");
 			List<String> results = aqlParameterizedImpl.select(query, parameters);
 
-			assertEquals(results.size(), 1);
+			assertEquals(results.size(), 2);
 		}
 
 		cleanTestBaseData();
