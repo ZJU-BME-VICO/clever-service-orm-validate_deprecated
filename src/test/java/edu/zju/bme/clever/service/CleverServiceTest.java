@@ -399,7 +399,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p, openEHR-EHR-COMPOSITION.visit.v3 as v ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 12);
+			assertEquals(results.size(), 6);
 
 			List<String> patients = new ArrayList<>();
 			List<String> visits = new ArrayList<>();
@@ -419,35 +419,6 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			}
 
 			assertEquals(patients.size(), 3);
-			assertEquals(visits.size(), 9);
-		}
-
-		{
-			String query = "select p, v " +
-					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p, openEHR-EHR-COMPOSITION.visit.v3 as v " +
-					"where p#/uid/value = v#/context/other_context[at0001]/items[at0015]/value/value ";
-			List<String> results = cleverImpl.select(query);
-
-			assertEquals(results.size(), 5);
-
-			List<String> patients = new ArrayList<>();
-			List<String> visits = new ArrayList<>();
-			for (String arr : results) {
-				DADLParser parser = new DADLParser(arr);
-				ContentObject contentObj = parser.parse();
-				Locatable loc = (Locatable) binding.bind(contentObj);			
-				if (loc.getArchetypeNodeId().compareToIgnoreCase("openEHR-DEMOGRAPHIC-PERSON.patient.v1") == 0) {
-					patients.add(arr);	
-					assertEquals(binding.toDADLString(loc), arr);
-				}
-				
-				if (loc.getArchetypeNodeId().compareToIgnoreCase("openEHR-EHR-COMPOSITION.visit.v3") == 0) {
-					visits.add(arr);	
-					assertEquals(binding.toDADLString(loc), arr);
-				}
-			}
-
-			assertEquals(patients.size(), 2);
 			assertEquals(visits.size(), 3);
 		}
 
