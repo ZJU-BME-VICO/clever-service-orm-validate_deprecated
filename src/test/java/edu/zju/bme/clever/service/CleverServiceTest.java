@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -489,7 +488,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select p " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"join fetch p#/details[at0001]/items[at0032]/onetomany as v ";
+					"join fetch p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 5);
@@ -518,7 +517,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select distinct p " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"join fetch p#/details[at0001]/items[at0032]/onetomany as v ";
+					"join fetch p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 5);

@@ -1,5 +1,6 @@
 package edu.zju.bme.clever.service.util;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.MappingException;
 import org.hibernate.PropertyNotFoundException;
+import org.hibernate.collection.internal.PersistentBag;
 import org.hibernate.property.BasicPropertyAccessor;
 import org.hibernate.property.ChainedPropertyAccessor;
 import org.hibernate.property.DirectPropertyAccessor;
@@ -23,6 +25,7 @@ import org.openehr.am.archetype.constraintmodel.CObject;
 import org.openehr.build.RMObjectBuilder;
 import org.openehr.build.SystemValue;
 import org.openehr.rm.common.archetyped.Locatable;
+import org.openehr.rm.datastructure.itemstructure.representation.Element;
 import org.openehr.rm.datatypes.quantity.datetime.DvDateTimeParser;
 import org.openehr.rm.datatypes.text.CodePhrase;
 import org.openehr.rm.support.measurement.MeasurementService;
@@ -72,7 +75,7 @@ public enum ArchetypeManipulator {
 	
 	public void setArchetypeValues(
 			Locatable loc, Map<String, Object> values, Archetype archetype) 
-					throws InstantiationException, IllegalAccessException {
+					throws Exception {
 		for (String path : values.keySet()) {
 			setArchetypeValue(loc, path, values.get(path), archetype);
 		}
@@ -80,7 +83,7 @@ public enum ArchetypeManipulator {
 	
 	public void setArchetypeValue(
 			Locatable loc, String propertyPath, Object propertyValue, Archetype archetype) 
-					throws InstantiationException, IllegalAccessException {
+					throws Exception {
 		
 		Map<String, CObject> pathNodeMap = archetype.getPathNodeMap();
 		String nodePath = getArchetypeNodePath(archetype, propertyPath);
@@ -91,7 +94,9 @@ public enum ArchetypeManipulator {
 			Object target = loc.itemAtPath(nodePath);
 			if (target == null) {
 				Class<?> klass = rmBuilder.retrieveRMType(node.getRmTypeName());
-				target = klass.newInstance();
+				Constructor<?> c = klass.getDeclaredConstructor();
+				c.setAccessible(true);
+				target = c.newInstance();
 			}
 			
 			String attributePath = propertyPath.substring(nodePath.length());
@@ -111,7 +116,8 @@ public enum ArchetypeManipulator {
 					if (klass.isPrimitive() || 
 							ClassUtils.wrapperToPrimitive(klass) != null ||
 							String.class.isAssignableFrom(klass) ||
-							Set.class.isAssignableFrom(klass)) {						
+							Set.class.isAssignableFrom(klass) ||
+							List.class.isAssignableFrom(klass)) {						
 						if (propertyValue instanceof Locatable) {
 							String uid = ((Locatable) propertyValue).getUid().getValue();
 							setter.set(tempTarget, uid, null);
@@ -171,25 +177,59 @@ public enum ArchetypeManipulator {
 		return nodePath;
 	}
 	
-	public Object createArchetypeClassObject(Object obj) throws Exception {
+	public Object createArchetypeClassObject(Object obj, Map<Object, Object> processedObjs, Map<Object, String> processedObjIds) throws Exception {	
 		Class<?> compiledMappingClass = Archetype2Java.INSTANCE.getCompiledMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		SkeletonGenerator generator = SkeletonGenerator.getInstance();
 		Object result = generator.create(mappingClass.getArchetype(), GenerationStrategy.MAXIMUM_EMPTY);		
 		if (result instanceof Locatable) {
 			Locatable loc = (Locatable) result;
+			processedObjs.put(obj, loc);
+			String processedObjId = (String) compiledMappingClass.getField("_uid_value").get(obj);
+			processedObjIds.put(obj, processedObjId);
 			Map<String, Object> values = new HashMap<>();
 			mappingClass.getFields().forEach(f -> {
 				try {
-	                JavaClass fieldMappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(f.getType());
-	                if (fieldMappingClass != null) {
-	                	Locatable fieldLoc = (Locatable) this.createArchetypeClassObject(compiledMappingClass.getField(f.getName()).get(obj));
-	                	if (fieldLoc != null) {
-	                		values.put(f.getArchetypePath(), fieldLoc.getUid().getValue());
-	                		loc.getAssociatedObjects().put(fieldLoc.getUid().getValue(), fieldLoc);
+					if (f.getType().startsWith("List<")) {
+						PersistentBag pb = (PersistentBag) compiledMappingClass.getField(f.getName()).get(obj);
+						List<Locatable> clusterItems = new ArrayList<>();
+						for (int i = 0; i < pb.size(); i++) {
+							Object fieldObj = pb.get(i);
+							if (!processedObjs.keySet().contains(fieldObj)) {
+								Locatable fieldLoc = (Locatable) this.createArchetypeClassObject(fieldObj, processedObjs, processedObjIds);
+								if (fieldLoc != null) {
+			                		loc.getAssociatedObjects().put(fieldLoc.getUid().getValue(), fieldLoc);
+			                		Element e = new Element("", fieldLoc.getUid().getValue(), null);
+			                		clusterItems.add(e);								
+								}
+							} else {
+								String fieldLocId = processedObjIds.get(fieldObj);
+								Object fieldLoc = processedObjs.get(fieldObj);
+		                		loc.getAssociatedObjects().put(fieldLocId, fieldLoc);
+		                		Element e = new Element("", fieldLocId, null);
+		                		clusterItems.add(e);								
+							}
 						}
+						values.put(f.getArchetypePath(), clusterItems);
 					} else {
-						values.put(f.getArchetypePath(), compiledMappingClass.getField(f.getName()).get(obj));
+		                JavaClass fieldMappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(f.getType());
+		                if (fieldMappingClass != null) {
+		                	Object fieldObj = compiledMappingClass.getField(f.getName()).get(obj);
+		                	if (!processedObjs.keySet().contains(fieldObj)) {
+			                	Locatable fieldLoc = (Locatable) this.createArchetypeClassObject(fieldObj, processedObjs, processedObjIds);
+			                	if (fieldLoc != null) {
+			                		values.put(f.getArchetypePath(), fieldLoc.getUid().getValue());
+			                		loc.getAssociatedObjects().put(fieldLoc.getUid().getValue(), fieldLoc);
+								}
+							} else {
+								String fieldLocId = processedObjIds.get(fieldObj);
+								Object fieldLoc = processedObjs.get(fieldObj);
+		                		values.put(f.getArchetypePath(), fieldLocId);
+		                		loc.getAssociatedObjects().put(fieldLocId, fieldLoc);								
+							}
+						} else {
+							values.put(f.getArchetypePath(), compiledMappingClass.getField(f.getName()).get(obj));
+						}						
 					}
 				} catch (Exception e) {
 					logger.error("createArchetypeClassObject", e);
