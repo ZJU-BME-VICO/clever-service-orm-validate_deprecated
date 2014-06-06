@@ -1,6 +1,7 @@
 package edu.zju.bme.clever.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,11 +9,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.junit.Test;
+import org.openehr.am.archetype.Archetype;
 import org.openehr.am.parser.ContentObject;
 import org.openehr.am.parser.DADLParser;
+import org.openehr.am.serialize.ADLSerializer;
+import org.openehr.am.serialize.XMLSerializer;
+import org.openehr.binding.XMLBinding;
 import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
+import org.openehr.schemas.v1.ARCHETYPE;
+import org.openehr.schemas.v1.ArchetypeDocument;
+
+import se.acode.openehr.parser.ADLParser;
 
 public class CleverServiceTest extends CleverServiceTestBase {
 
@@ -399,7 +409,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p, openEHR-EHR-COMPOSITION.visit.v3 as v ";
 			List<String> results = cleverImpl.select(query);
 
-			assertEquals(results.size(), 12);
+			assertEquals(results.size(), 6);
 
 			List<String> patients = new ArrayList<>();
 			List<String> visits = new ArrayList<>();
@@ -419,35 +429,6 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			}
 
 			assertEquals(patients.size(), 3);
-			assertEquals(visits.size(), 9);
-		}
-
-		{
-			String query = "select p, v " +
-					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p, openEHR-EHR-COMPOSITION.visit.v3 as v " +
-					"where p#/uid/value = v#/context/other_context[at0001]/items[at0015]/value/value ";
-			List<String> results = cleverImpl.select(query);
-
-			assertEquals(results.size(), 5);
-
-			List<String> patients = new ArrayList<>();
-			List<String> visits = new ArrayList<>();
-			for (String arr : results) {
-				DADLParser parser = new DADLParser(arr);
-				ContentObject contentObj = parser.parse();
-				Locatable loc = (Locatable) binding.bind(contentObj);			
-				if (loc.getArchetypeNodeId().compareToIgnoreCase("openEHR-DEMOGRAPHIC-PERSON.patient.v1") == 0) {
-					patients.add(arr);	
-					assertEquals(binding.toDADLString(loc), arr);
-				}
-				
-				if (loc.getArchetypeNodeId().compareToIgnoreCase("openEHR-EHR-COMPOSITION.visit.v3") == 0) {
-					visits.add(arr);	
-					assertEquals(binding.toDADLString(loc), arr);
-				}
-			}
-
-			assertEquals(patients.size(), 2);
 			assertEquals(visits.size(), 3);
 		}
 
@@ -507,7 +488,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select p " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"join fetch p#/details[at0001]/items[at0032]/onetomany as v ";
+					"join fetch p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 5);
@@ -536,7 +517,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select distinct p " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"join fetch p#/details[at0001]/items[at0032]/onetomany as v ";
+					"join fetch p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 5);
@@ -991,6 +972,29 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		}
 
 		cleanTestBaseData();
+	}
+
+	@Test
+	public void testArchetypeAndXML() throws Exception {
+		
+		archetypes.forEach((id, archetypeString1) -> {
+			try {
+				XMLSerializer xmlSerializer = new XMLSerializer();
+				ADLParser parser = new ADLParser(archetypeString1);
+				Archetype archetype1 = parser.parse();
+				String archetypeXML = xmlSerializer.output(archetype1);
+				XMLBinding xmlBinding = new XMLBinding();
+				ARCHETYPE xmlBindingArchetype = ArchetypeDocument.Factory.parse(archetypeXML).getArchetype();
+				Object rmObj = xmlBinding.bindToRM(xmlBindingArchetype);
+				Archetype archetype2 = (Archetype) rmObj;
+				ADLSerializer adlSerializer = new ADLSerializer();
+				String archetypeString2 = adlSerializer.output(archetype2);
+				assertTrue(archetypeString1.compareTo(archetypeString2) == 0);
+			} catch (Exception e) {
+				assertTrue(false);
+			}			
+		});
+		
 	}
 
 }

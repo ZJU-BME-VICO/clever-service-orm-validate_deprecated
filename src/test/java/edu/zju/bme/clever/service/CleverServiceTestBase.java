@@ -28,12 +28,12 @@ public class CleverServiceTestBase {
 	protected CleverServiceParameterizedImpl aqlParameterizedImpl = new CleverServiceParameterizedImpl();
 
 	public CleverServiceTestBase() throws IOException {
-		archetypes
-				.put("openEHR-EHR-OBSERVATION.blood_pressure.v1",
-						readLines("../document/knowledge/CKM/archetype/entry/observation/openEHR-EHR-OBSERVATION.blood_pressure.v1.adl"));
-		arms.put(
-				"openEHR-EHR-OBSERVATION.blood_pressure.v1",
-				readLines("../document/knowledge/CKM/archetype/entry/observation/openEHR-EHR-OBSERVATION.blood_pressure.v1.arm"));
+//		archetypes
+//				.put("openEHR-EHR-OBSERVATION.blood_pressure.v1",
+//						readLines("../document/knowledge/CKM/archetype/entry/observation/openEHR-EHR-OBSERVATION.blood_pressure.v1.adl"));
+//		arms.put(
+//				"openEHR-EHR-OBSERVATION.blood_pressure.v1",
+//				readLines("../document/knowledge/CKM/archetype/entry/observation/openEHR-EHR-OBSERVATION.blood_pressure.v1.arm"));
 
 		archetypes
 				.put("openEHR-EHR-OBSERVATION.adl.v1",

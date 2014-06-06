@@ -188,6 +188,16 @@
 			<version>${openEHR.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>openehr</groupId>
+			<artifactId>xml-binding</artifactId>
+			<version>${openEHR.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>openehr</groupId>
+			<artifactId>xml-serializer</artifactId>
+			<version>${openEHR.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>edu.zju.bme</groupId>
 			<artifactId>archetype2java</artifactId>
 			<version>1.0.0</version>
