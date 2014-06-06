@@ -192,25 +192,27 @@ public enum ArchetypeManipulator {
 				try {
 					if (f.getType().startsWith("List<")) {
 						PersistentBag pb = (PersistentBag) compiledMappingClass.getField(f.getName()).get(obj);
-						List<Locatable> clusterItems = new ArrayList<>();
-						for (int i = 0; i < pb.size(); i++) {
-							Object fieldObj = pb.get(i);
-							if (!processedObjs.keySet().contains(fieldObj)) {
-								Locatable fieldLoc = (Locatable) this.createArchetypeClassObject(fieldObj, processedObjs, processedObjIds);
-								if (fieldLoc != null) {
-			                		loc.getAssociatedObjects().put(fieldLoc.getUid().getValue(), fieldLoc);
-			                		Element e = new Element("", fieldLoc.getUid().getValue(), null);
+						if (pb.wasInitialized()) {
+							List<Locatable> clusterItems = new ArrayList<>();
+							for (int i = 0; i < pb.size(); i++) {
+								Object fieldObj = pb.get(i);
+								if (!processedObjs.keySet().contains(fieldObj)) {
+									Locatable fieldLoc = (Locatable) this.createArchetypeClassObject(fieldObj, processedObjs, processedObjIds);
+									if (fieldLoc != null) {
+				                		loc.getAssociatedObjects().put(fieldLoc.getUid().getValue(), fieldLoc);
+				                		Element e = new Element("", fieldLoc.getUid().getValue(), null);
+				                		clusterItems.add(e);								
+									}
+								} else {
+									String fieldLocId = processedObjIds.get(fieldObj);
+									Object fieldLoc = processedObjs.get(fieldObj);
+			                		loc.getAssociatedObjects().put(fieldLocId, fieldLoc);
+			                		Element e = new Element("", fieldLocId, null);
 			                		clusterItems.add(e);								
 								}
-							} else {
-								String fieldLocId = processedObjIds.get(fieldObj);
-								Object fieldLoc = processedObjs.get(fieldObj);
-		                		loc.getAssociatedObjects().put(fieldLocId, fieldLoc);
-		                		Element e = new Element("", fieldLocId, null);
-		                		clusterItems.add(e);								
 							}
+							values.put(f.getArchetypePath(), clusterItems);
 						}
-						values.put(f.getArchetypePath(), clusterItems);
 					} else {
 		                JavaClass fieldMappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(f.getType());
 		                if (fieldMappingClass != null) {

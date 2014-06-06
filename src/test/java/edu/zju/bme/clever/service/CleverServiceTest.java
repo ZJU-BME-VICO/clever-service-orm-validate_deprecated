@@ -628,7 +628,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select p " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"join p#/details[at0001]/items[at0032]/onetomany as v ";
+					"join p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 2);
@@ -657,7 +657,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select p, v " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"join p#/details[at0001]/items[at0032]/onetomany as v ";
+					"join p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 5);
@@ -686,7 +686,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select p " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"left join p#/details[at0001]/items[at0032]/onetomany as v ";
+					"left join p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 3);
@@ -715,7 +715,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 		{
 			String query = "select p, v " +
 					"from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as p " +
-					"left join p#/details[at0001]/items[at0032]/onetomany as v ";
+					"left join p#/details[at0001]/items[at0032]/items as v ";
 			List<String> results = cleverImpl.select(query);
 
 			assertEquals(results.size(), 6);
