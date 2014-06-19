@@ -86,6 +86,8 @@ public enum CleverServiceSingleton {
 
 			cfg = new Configuration().configure();
 			
+			Archetype2Java.INSTANCE.reset();
+			
 			Archetype2Java.INSTANCE.setClassFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath());
 			Archetype2Java.INSTANCE.setSourceFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath());
 			Archetype2Java.INSTANCE.setPackageName("edu.zju.bme.clever.service.model");
