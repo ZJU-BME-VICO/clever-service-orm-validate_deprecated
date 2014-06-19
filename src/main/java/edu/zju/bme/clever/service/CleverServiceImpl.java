@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.jws.WebService;
 import javax.xml.ws.BindingType;
@@ -134,6 +135,13 @@ public class CleverServiceImpl implements CleverService {
 	public String getArchetypeString(String archetypeId) {
 
 		return CleverServiceSingleton.INSTANCE.getArchetypeString(archetypeId);
+		
+	}
+
+	@Override
+	public Set<String> getArchetypeStrings(Set<String> archetypeIds) {
+		
+		return archetypeIds.stream().map(i -> getArchetypeString(i)).collect(Collectors.toSet());
 		
 	}
 
