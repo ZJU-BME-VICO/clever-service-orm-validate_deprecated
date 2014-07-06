@@ -177,7 +177,11 @@ public enum ArchetypeManipulator {
 		return nodePath;
 	}
 	
-	public Object createArchetypeClassObject(Object obj, Map<Object, Object> processedObjs, Map<Object, String> processedObjIds) throws Exception {	
+	public Object createArchetypeClassObject(Object obj, Map<Object, Object> processedObjs, Map<Object, String> processedObjIds) throws Exception {
+		if (obj == null) {
+			return null;
+		}
+		
 		Class<?> compiledMappingClass = Archetype2Java.INSTANCE.getCompiledMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		SkeletonGenerator generator = SkeletonGenerator.getInstance();
@@ -255,15 +259,14 @@ public enum ArchetypeManipulator {
 		aqlSegments.add(aql);
 		
         
-		String hql = "";
-        hql = aqlSegments.stream().map((aqlSegement) -> {
+		String hql = aqlSegments.stream().map((aqlSegement) -> {
             if (!aqlSegement.startsWith("'")) {
                 aqlSegement = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aqlSegement);
                 aqlSegement = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(aqlSegement);
                 aqlSegement = aqlSegement.replaceAll("#", ".");
             }
             return aqlSegement;
-        }).map((aqlSegement) -> aqlSegement).reduce(hql, String::concat);
+        }).reduce("", String::concat);
         
 		return hql;
 	}
