@@ -177,7 +177,11 @@ public enum ArchetypeManipulator {
 		return nodePath;
 	}
 	
-	public Object createArchetypeClassObject(Object obj, Map<Object, Object> processedObjs, Map<Object, String> processedObjIds) throws Exception {	
+	public Object createArchetypeClassObject(Object obj, Map<Object, Object> processedObjs, Map<Object, String> processedObjIds) throws Exception {
+		if (obj == null) {
+			return null;
+		}
+		
 		Class<?> compiledMappingClass = Archetype2Java.INSTANCE.getCompiledMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		JavaClass mappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(obj.getClass().getSimpleName());
 		SkeletonGenerator generator = SkeletonGenerator.getInstance();

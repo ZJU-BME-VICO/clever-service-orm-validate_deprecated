@@ -181,6 +181,10 @@ public enum CleverServiceSingleton {
 
 	protected void generateReturnDADL(Object obj, List<String> dadlResults)
 			throws Exception {
+		
+		if (obj == null) {
+			return;
+		}
 
 		if (obj instanceof Locatable) {
 			DADLBinding binding = new DADLBinding();
