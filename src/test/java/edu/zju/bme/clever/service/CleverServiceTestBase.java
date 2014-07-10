@@ -1,11 +1,8 @@
 package edu.zju.bme.clever.service;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,6 +14,9 @@ import org.openehr.rm.binding.DADLBinding;
 import org.openehr.rm.common.archetyped.Locatable;
 import org.openehr.rm.util.GenerationStrategy;
 import org.openehr.rm.util.SkeletonGenerator;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
 
 import edu.zju.bme.clever.service.util.ArchetypeManipulator;
 import se.acode.openehr.parser.ADLParser;
@@ -252,19 +252,9 @@ public class CleverServiceTestBase {
 	}
 
 	protected static String readLines(String name) throws IOException {
-		StringBuilder result = new StringBuilder();
 		File file = new File(name);
-		InputStream is = new FileInputStream(file);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            String line = reader.readLine();
-            while (line != null) {
-                result.append(line);
-                result.append("\n");
-                line = reader.readLine();
-            }
-        }
-		
-		return result.toString();
+		ImmutableList<String> lines = Files.asCharSource(file, StandardCharsets.UTF_8).readLines();
+		return String.join("\n", lines);
 	}
 
 	protected void reconfigure() throws IOException {
