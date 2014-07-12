@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
 	xmlns:jaxws="http://cxf.apache.org/jaxws"
 	xsi:schemaLocation="
 	http://www.springframework.org/schema/beans 
 	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
 	http://cxf.apache.org/jaxws 
 	http://cxf.apache.org/schemas/jaxws.xsd">
 
@@ -17,10 +20,13 @@
 		address="/CleverService">
 	</jaxws:endpoint>
 
-<!-- 	<jaxws:endpoint  -->
-<!-- 		id="CleverServiceParameterized" -->
-<!-- 		implementor="edu.zju.bme.clever.service.CleverServiceParameterizedImpl"  -->
-<!-- 		address="/CleverServiceParameterized"> -->
-<!-- 	</jaxws:endpoint> -->
+	<jaxws:endpoint 
+		id="CleverServiceParameterized"
+		implementor="edu.zju.bme.clever.service.CleverServiceParameterizedImpl" 
+		address="/CleverServiceParameterized">
+	</jaxws:endpoint>
+
+    <aop:aspectj-autoproxy />
+    <bean class="edu.zju.bme.clever.service.util.LogAspect" />
 
 </beans>

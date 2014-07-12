@@ -1,5 +1,6 @@
 package edu.zju.bme.clever.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,30 +16,38 @@ public class CleverServiceParameterizedImpl implements CleverServiceParameterize
 	}
 	
 	@Override
-	public List<String> select(String aql, Map<String, Object> parameters) {
+	public List<String> select(String aql, Map<String, String> parameters) {
 
-		return CleverServiceSingleton.INSTANCE.select(aql, parameters);
-
-	}
-	
-	@Override
-	public long selectCount(String aql, Map<String, Object> parameters) {
-
-		return CleverServiceSingleton.INSTANCE.selectCount(aql, parameters);
+		Map<String, Object> p = new HashMap<>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.select(aql, p);
 
 	}
 	
 	@Override
-	public int delete(String aql, Map<String, Object> parameters) {
+	public long selectCount(String aql, Map<String, String> parameters) {
 
-		return CleverServiceSingleton.INSTANCE.delete(aql, parameters);
+		Map<String, Object> p = new HashMap<>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.selectCount(aql, p);
+
+	}
+	
+	@Override
+	public int delete(String aql, Map<String, String> parameters) {
+
+		Map<String, Object> p = new HashMap<>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.delete(aql, p);
 
 	}
 
 	@Override
-	public int update(String aql, Map<String, Object> parameters) {
+	public int update(String aql, Map<String, String> parameters) {
 
-		return CleverServiceSingleton.INSTANCE.update(aql, parameters);
+		Map<String, Object> p = new HashMap<>();
+		p.putAll(parameters);
+		return CleverServiceSingleton.INSTANCE.update(aql, p);
 
 	}
 

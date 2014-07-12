@@ -1,6 +1,7 @@
 package edu.zju.bme.clever.service.util;
 
 import java.lang.reflect.Constructor;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public enum ArchetypeManipulator {
 	private RMObjectBuilder rmBuilder = null;
 
 	protected CodePhrase lang = new CodePhrase("ISO_639-1", "en");
-	protected CodePhrase charset = new CodePhrase("IANA_character-sets", "UTF-8");
+	protected CodePhrase charset = new CodePhrase("IANA_character-sets", StandardCharsets.UTF_8.name());
 	protected TerminologyService ts = null;
 	protected MeasurementService ms = null;
 	

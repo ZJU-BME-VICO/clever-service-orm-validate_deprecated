@@ -2,14 +2,11 @@ package edu.zju.bme.clever.service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import edu.zju.bme.clever.service.util.MapAdapter;
 
 @WebService
 public interface CleverService {
@@ -49,7 +46,9 @@ public interface CleverService {
 	 * -2 internal error
 	 */
 	@WebMethod
-	int reconfigure(Collection<String> archetypes, Collection<String> arms);
+	int reconfigure(
+			@WebParam(name="archetypes") Collection<String> archetypes, 
+			@WebParam(name="arms") Collection<String> arms);
 
 	/**
 	 * Execute select aql
@@ -59,10 +58,7 @@ public interface CleverService {
 	 * else results in ODIN format
 	 */
 	@WebMethod
-	List<String> select(String aql);
-
-	@WebMethod	
-	List<String> selectParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
+	List<String> select(@WebParam(name="aql") String aql);
 
 	/**
 	 * Execute select count aql
@@ -73,10 +69,7 @@ public interface CleverService {
 	 * else result count
 	 */
 	@WebMethod
-	long selectCount(String aql);
-
-	@WebMethod
-	long selectCountParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
+	long selectCount(@WebParam(name="aql") String aql);
 
 	/**
 	 * Insert ODIN format archetype instances into CDR service 
@@ -87,7 +80,7 @@ public interface CleverService {
 	 * -2 internal error
 	 */
 	@WebMethod
-	int insert(List<String> dadls);
+	int insert(@WebParam(name="dadls") List<String> dadls);
 
 	/**
 	 * Execute delete aql
@@ -98,10 +91,7 @@ public interface CleverService {
 	 * else deleted record count
 	 */
 	@WebMethod
-	int delete(String aql);
-
-	@WebMethod
-	int deleteParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
+	int delete(@WebParam(name="aql") String aql);
 
 	/**
 	 * Execute update aql
@@ -112,10 +102,7 @@ public interface CleverService {
 	 * else updated record count
 	 */
 	@WebMethod
-	int update(String aql);
-
-	@WebMethod
-	int updateParameterized(String aql, @XmlJavaTypeAdapter(MapAdapter.class) Map<String, String> parameters);
+	int update(@WebParam(name="aql") String aql);
 
 	/**
 	 * Get sql from aql 
@@ -125,7 +112,7 @@ public interface CleverService {
 	 * else sqls
 	 */
 	@WebMethod
-	List<String> getSQL(String aql);
+	List<String> getSQL(@WebParam(name="aql") String aql);
 
 	/**
 	 * Get archetype ids deployed in CDR service
@@ -144,7 +131,7 @@ public interface CleverService {
 	 * else archetype content string
 	 */
 	@WebMethod
-	String getArchetypeString(String archetypeId);
+	String getArchetypeString(@WebParam(name="archetypeId") String archetypeId);
 
 	/**
 	 * Get archetype content strings deployed in CDR service
@@ -154,6 +141,6 @@ public interface CleverService {
 	 * else archetype content strings
 	 */
 	@WebMethod
-	Set<String> getArchetypeStrings(Set<String> archetypeIds);
+	Set<String> getArchetypeStrings(@WebParam(name="archetypeIds") Set<String> archetypeIds);
 	
 }

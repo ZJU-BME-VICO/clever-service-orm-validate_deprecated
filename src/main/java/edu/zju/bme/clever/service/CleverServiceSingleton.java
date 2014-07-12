@@ -3,6 +3,7 @@ package edu.zju.bme.clever.service;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,23 +49,21 @@ public enum CleverServiceSingleton {
 	private CleverServiceSingleton() {
 	}
 
-	public int start() {
+	public synchronized int start() {
 
-		logger.info("start");
 		serviceStatus = true;
 		return 0;
 
 	}
 
-	public int stop() {
+	public synchronized int stop() {
 
-		logger.info("stop");
 		serviceStatus = false;
 		return 0;
 
 	}
 
-	public boolean getServiceStatus() {
+	public synchronized boolean getServiceStatus() {
 
 		logger.info(serviceStatus);
 		return serviceStatus;
@@ -72,8 +71,6 @@ public enum CleverServiceSingleton {
 	}
 
 	public int reconfigure(Collection<String> archetypes, Collection<String> arms) {
-
-		logger.info("reconfigure");
 
 		try {
 			if (getServiceStatus()) {
@@ -119,8 +116,6 @@ public enum CleverServiceSingleton {
 	}
 
 	public List<String> select(String aql, Map<String, Object> parameters) {
-
-		logger.info("select");
 
 		logger.info(aql);
 		
@@ -212,8 +207,6 @@ public enum CleverServiceSingleton {
 
 	public long selectCount(String aql, Map<String, Object> parameters) {
 
-		logger.info("selectCount");
-
 		logger.info(aql);
 		
 		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
@@ -259,8 +252,6 @@ public enum CleverServiceSingleton {
 
 	public int insert(List<String> dadls) {
 
-		logger.info("insert");
-
 		Session s = sessionFactory.openSession();
 		Transaction txn = s.beginTransaction();
 
@@ -278,7 +269,7 @@ public enum CleverServiceSingleton {
 			for (String dadl : dadls) {
 				logger.info(dadl);
 				
-				InputStream is = new ByteArrayInputStream(dadl.getBytes("UTF-8"));
+				InputStream is = new ByteArrayInputStream(dadl.getBytes(StandardCharsets.UTF_8));
 				DADLParser parser = new DADLParser(is);
 				ContentObject contentObj = parser.parse();
 				Object bp = binding.bind(contentObj);
@@ -312,7 +303,9 @@ public enum CleverServiceSingleton {
 
 	}
 	
-	private void insert(List<String> archetypeIds, List<Locatable> dadlObjects, Session s) throws Exception {
+	private void insert(List<String> archetypeIds, List<Locatable> dadlObjects, Session s) 
+			throws Exception {
+		
         if (archetypeIds.size() <= 0) {
             return;
         }
@@ -368,6 +361,7 @@ public enum CleverServiceSingleton {
 		}
         
         this.insert(archetypeIdsLeft, dadlObjectsLeft, s);
+        
 	}
 
 	public int delete(String aql) {
@@ -395,8 +389,6 @@ public enum CleverServiceSingleton {
 	}
 
 	protected int executeUpdate(String aql, Map<String, Object> parameters) {
-
-		logger.info("executeUpdate");
 
 		logger.info(aql);
 		
@@ -452,8 +444,6 @@ public enum CleverServiceSingleton {
 
 	public List<String> getSQL(String aql) {
 
-		logger.info("getSQL");
-
 		try {
 			if (!getServiceStatus()) {
 				return null;
@@ -492,8 +482,6 @@ public enum CleverServiceSingleton {
 	}
 
 	public Set<String> getArchetypeIds() {
-
-		logger.info("getArchetypes");
 		
 		try {
 			if (!getServiceStatus()) {
@@ -512,8 +500,6 @@ public enum CleverServiceSingleton {
 	}
 	
 	public String getArchetypeString(String archetypeId) {
-		
-		logger.info("getArchetypeString");
 		
 		try {
 			if (!getServiceStatus()) {
