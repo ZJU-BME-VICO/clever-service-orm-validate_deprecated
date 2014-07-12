@@ -20,11 +20,11 @@
 		address="/CleverService">
 	</jaxws:endpoint>
 
-<!-- 	<jaxws:endpoint  -->
-<!-- 		id="CleverServiceParameterized" -->
-<!-- 		implementor="edu.zju.bme.clever.service.CleverServiceParameterizedImpl"  -->
-<!-- 		address="/CleverServiceParameterized"> -->
-<!-- 	</jaxws:endpoint> -->
+	<jaxws:endpoint 
+		id="CleverServiceParameterized"
+		implementor="edu.zju.bme.clever.service.CleverServiceParameterizedImpl" 
+		address="/CleverServiceParameterized">
+	</jaxws:endpoint>
 
     <aop:aspectj-autoproxy />
     <bean class="edu.zju.bme.clever.service.util.LogAspect" />

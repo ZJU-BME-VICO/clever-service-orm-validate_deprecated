@@ -91,7 +91,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "delete "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
 					+ "where o#/uid/value = :name";
-			Map<String, Object> parameters = new HashMap<>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put("name", "visit3");
 			int ret = aqlParameterizedImpl.delete(query, parameters);
 
@@ -754,7 +754,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "select o "
 					+ "from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as o "
 					+ "where o#/details[at0001]/items[at0009]/value/value = :name";
-			Map<String, Object> parameters = new HashMap<>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put("name", "lisi");
 			List<String> results = aqlParameterizedImpl.select(query, parameters);
 
@@ -780,7 +780,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 			String query = "select o "
 					+ "from openEHR-EHR-COMPOSITION.visit.v3 as o "
 					+ "where o#/uid/value = :VisitId";
-			Map<String, Object> parameters = new HashMap<>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put("VisitId", "visit1");
 			List<String> results = aqlParameterizedImpl.select(query, parameters);
 
@@ -935,7 +935,7 @@ public class CleverServiceTest extends CleverServiceTestBase {
 					+ "o#/details[at0001]/items[at0009]/value/value = :name, "
 					+ "o#/details[at0001]/items[at0004]/value/value = :birthday "
 					+ "where o#/uid/value = :pid";
-			Map<String, Object> parameters = new HashMap<>();
+			Map<String, String> parameters = new HashMap<>();
 			parameters.put("name", "lisi");
 			parameters.put("birthday", "1994-08-11T19:20:30+08:00");
 			parameters.put("pid", "patient1");
