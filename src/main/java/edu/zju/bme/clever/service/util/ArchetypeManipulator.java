@@ -253,7 +253,7 @@ public enum ArchetypeManipulator {
 		while (aql.indexOf("'") > 0) {
 			int start = aql.indexOf("'");
 			int end = aql.indexOf("'", start + 1);
-			aqlSegments.add(aql.substring(0, start - 1));
+			aqlSegments.add(aql.substring(0, start));
 			aqlSegments.add(aql.substring(start, end + 1));
 			aql = aql.substring(end + 1);
 		}
