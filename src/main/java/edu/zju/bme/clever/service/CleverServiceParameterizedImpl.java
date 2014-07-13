@@ -3,6 +3,7 @@ package edu.zju.bme.clever.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.jws.WebService;
 import javax.xml.ws.BindingType;
@@ -18,9 +19,12 @@ public class CleverServiceParameterizedImpl implements CleverServiceParameterize
 	@Override
 	public List<String> select(String aql, Map<String, String> parameters) {
 
-		Map<String, Object> p = new HashMap<>();
-		p.putAll(parameters);
-		return CleverServiceSingleton.INSTANCE.select(aql, p);
+		Map<String, Object> p = new HashMap<>();	
+		if (parameters != null) {
+			p.putAll(parameters);			
+		}
+		return CleverServiceSingleton.INSTANCE.select(
+				Optional.ofNullable(aql), Optional.ofNullable(p));
 
 	}
 	
@@ -28,8 +32,11 @@ public class CleverServiceParameterizedImpl implements CleverServiceParameterize
 	public long selectCount(String aql, Map<String, String> parameters) {
 
 		Map<String, Object> p = new HashMap<>();
-		p.putAll(parameters);
-		return CleverServiceSingleton.INSTANCE.selectCount(aql, p);
+		if (parameters != null) {
+			p.putAll(parameters);			
+		}
+		return CleverServiceSingleton.INSTANCE.selectCount(
+				Optional.ofNullable(aql), Optional.ofNullable(p));
 
 	}
 	
@@ -37,8 +44,11 @@ public class CleverServiceParameterizedImpl implements CleverServiceParameterize
 	public int delete(String aql, Map<String, String> parameters) {
 
 		Map<String, Object> p = new HashMap<>();
-		p.putAll(parameters);
-		return CleverServiceSingleton.INSTANCE.delete(aql, p);
+		if (parameters != null) {
+			p.putAll(parameters);			
+		}
+		return CleverServiceSingleton.INSTANCE.delete(
+				Optional.ofNullable(aql), Optional.ofNullable(p));
 
 	}
 
@@ -46,8 +56,11 @@ public class CleverServiceParameterizedImpl implements CleverServiceParameterize
 	public int update(String aql, Map<String, String> parameters) {
 
 		Map<String, Object> p = new HashMap<>();
-		p.putAll(parameters);
-		return CleverServiceSingleton.INSTANCE.update(aql, p);
+		if (parameters != null) {
+			p.putAll(parameters);			
+		}
+		return CleverServiceSingleton.INSTANCE.update(
+				Optional.ofNullable(aql), Optional.ofNullable(p));
 
 	}
 
