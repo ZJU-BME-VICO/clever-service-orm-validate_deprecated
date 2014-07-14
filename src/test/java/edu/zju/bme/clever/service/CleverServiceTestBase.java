@@ -1,13 +1,12 @@
 package edu.zju.bme.clever.service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openehr.am.archetype.Archetype;
 import org.openehr.rm.binding.DADLBinding;
@@ -15,10 +14,8 @@ import org.openehr.rm.common.archetyped.Locatable;
 import org.openehr.rm.util.GenerationStrategy;
 import org.openehr.rm.util.SkeletonGenerator;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
-
 import edu.zju.bme.clever.service.util.ArchetypeManipulator;
+import edu.zju.bme.snippet.java.FileOperator;
 import se.acode.openehr.parser.ADLParser;
 
 public class CleverServiceTestBase {
@@ -28,68 +25,37 @@ public class CleverServiceTestBase {
 	protected CleverServiceParameterizedImpl aqlParameterizedImpl = new CleverServiceParameterizedImpl();
 
 	public CleverServiceTestBase() throws IOException {
-//		archetypes
-//				.put("openEHR-EHR-OBSERVATION.blood_pressure.v1",
-//						readLines("../document/knowledge/CKM/archetype/entry/observation/openEHR-EHR-OBSERVATION.blood_pressure.v1.adl"));
-//		arms.put(
-//				"openEHR-EHR-OBSERVATION.blood_pressure.v1",
-//				readLines("../document/knowledge/CKM/archetype/entry/observation/openEHR-EHR-OBSERVATION.blood_pressure.v1.arm"));
+		archetypes.put("openEHR-EHR-OBSERVATION.adl.v1",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.adl.v1.adl")).get());
 
-		archetypes
-				.put("openEHR-EHR-OBSERVATION.adl.v1",
-						readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.adl.v1.adl"));
-		arms.put(
-				"openEHR-EHR-OBSERVATION.adl.v1",
-				readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.adl.v1.arm"));
+		archetypes.put("openEHR-EHR-OBSERVATION.cdr.v1",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.cdr.v1.adl")).get());
 
-		archetypes
-				.put("openEHR-EHR-OBSERVATION.cdr.v1",
-						readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.cdr.v1.adl"));
-		arms.put(
-				"openEHR-EHR-OBSERVATION.cdr.v1",
-				readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.cdr.v1.arm"));
+		archetypes.put("openEHR-EHR-OBSERVATION.gds.v1",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.gds.v1.adl")).get());
 
-		archetypes
-				.put("openEHR-EHR-OBSERVATION.gds.v1",
-						readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.gds.v1.adl"));
-		arms.put(
-				"openEHR-EHR-OBSERVATION.gds.v1",
-				readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.gds.v1.arm"));
+		archetypes.put("openEHR-EHR-OBSERVATION.mmse.v1",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.mmse.v1.adl")).get());
 
-		archetypes
-				.put("openEHR-EHR-OBSERVATION.mmse.v1",
-						readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.mmse.v1.adl"));
-		arms.put(
-				"openEHR-EHR-OBSERVATION.mmse.v1",
-				readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.mmse.v1.arm"));
+		archetypes.put("openEHR-EHR-OBSERVATION.other_cognitions_scale_exams.v1",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.other_cognitions_scale_exams.v1.adl")).get());
 
-		archetypes
-				.put("openEHR-EHR-OBSERVATION.other_cognitions_scale_exams.v1",
-						readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.other_cognitions_scale_exams.v1.adl"));
-		arms.put(
-				"openEHR-EHR-OBSERVATION.other_cognitions_scale_exams.v1",
-				readLines("../document/knowledge/ZJU/archetype/ad/openEHR-EHR-OBSERVATION.other_cognitions_scale_exams.v1.arm"));
+		archetypes.put("openEHR-EHR-COMPOSITION.visit.v3",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/openEHR-EHR-COMPOSITION.visit.v3.adl")).get());
 
-		archetypes
-				.put("openEHR-EHR-COMPOSITION.visit.v3",
-						readLines("../document/knowledge/ZJU/archetype/openEHR-EHR-COMPOSITION.visit.v3.adl"));
-		arms.put(
-				"openEHR-EHR-COMPOSITION.visit.v3",
-				readLines("../document/knowledge/ZJU/archetype/openEHR-EHR-COMPOSITION.visit.v3.arm"));
+		archetypes.put("openEHR-DEMOGRAPHIC-PERSON.patient.v1",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/openEHR-DEMOGRAPHIC-PERSON.patient.v1.adl")).get());
 
-		archetypes
-				.put("openEHR-DEMOGRAPHIC-PERSON.patient.v1",
-						readLines("../document/knowledge/ZJU/archetype/openEHR-DEMOGRAPHIC-PERSON.patient.v1.adl"));
-		arms.put(
-				"openEHR-DEMOGRAPHIC-PERSON.patient.v1",
-				readLines("../document/knowledge/ZJU/archetype/openEHR-DEMOGRAPHIC-PERSON.patient.v1.arm"));
-
-		archetypes
-				.put("openEHR-DEMOGRAPHIC-PERSON.patient.v2",
-						readLines("../document/knowledge/ZJU/archetype/openEHR-DEMOGRAPHIC-PERSON.patient.v2.adl"));
-		arms.put(
-				"openEHR-DEMOGRAPHIC-PERSON.patient.v2",
-				readLines("../document/knowledge/ZJU/archetype/openEHR-DEMOGRAPHIC-PERSON.patient.v2.arm"));
+		archetypes.put("openEHR-DEMOGRAPHIC-PERSON.patient.v2",
+				FileOperator.INSTANCE.readLinesFromFile(
+						Optional.ofNullable("../document/knowledge/ZJU/archetype/openEHR-DEMOGRAPHIC-PERSON.patient.v2.adl")).get());
 	}
 
 	protected String[] getDadlFiles() {
@@ -249,12 +215,6 @@ public class CleverServiceTestBase {
         archetypes.keySet().stream().map((str) -> String.format("delete from %s as o", str)).forEach((aql) -> {
             aqlParameterizedImpl.delete(aql, null);
         });
-	}
-
-	protected static String readLines(String name) throws IOException {
-		File file = new File(name);
-		ImmutableList<String> lines = Files.asCharSource(file, StandardCharsets.UTF_8).readLines();
-		return String.join("\n", lines);
 	}
 
 	protected void reconfigure() throws IOException {
