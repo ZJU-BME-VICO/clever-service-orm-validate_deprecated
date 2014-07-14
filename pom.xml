@@ -42,6 +42,16 @@
 			<id>test</id>
 			<properties>
 				<env>test</env>
+				<tomcat.url>http://${tomcat.server}:${tomcat.port}/manager/text</tomcat.url>
+				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-service-orm</database.url>
+				<database.username>sa</database.username>
+				<database.password>sa</database.password>
+			</properties>
+		</profile>
+		<profile>
+			<id>remote</id>
+			<properties>
+				<env>test</env>
 				<tomcat.url>http://172.16.100.63:${tomcat.port}/manager/text</tomcat.url>
 				<database.url>jdbc:sqlserver://172.16.100.33;instanceName=CDR;databaseName=clever-service-orm-validate</database.url>
 				<database.username>sa</database.username>

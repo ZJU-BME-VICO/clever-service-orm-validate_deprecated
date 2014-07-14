@@ -177,6 +177,17 @@ public class CleverServiceTest extends CleverServiceTestBase {
             });
 		}
 
+		{
+			String query = "from openEHR-DEMOGRAPHIC-PERSON.patient.v1 as o "
+					+ "where o#/details[at0001]/items[at0009]/value/value in ('27245')";
+			List<String> sqls = cleverImpl.getSQL(query);
+
+			assertTrue(sqls.size() > 0);
+            sqls.stream().forEach((sql) -> {
+                System.out.println(sql);
+            });
+		}
+
 		cleanTestBaseData();
 	}
 

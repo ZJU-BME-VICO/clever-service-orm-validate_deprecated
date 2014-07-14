@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
@@ -248,28 +249,37 @@ public enum ArchetypeManipulator {
 		return null;
 	}
 	
-	public String Aql2Hql(String aql) {
+	public Optional<String> Aql2Hql(String aql) {
+		return Optional.ofNullable(aql).flatMap(this::splitAql).flatMap(this::joinHql);
+	}
+	
+	private Optional<List<String>> splitAql(String aql) {
 		List<String> aqlSegments = new ArrayList<>();
-		while (aql.indexOf("'") > 0) {
-			int start = aql.indexOf("'");
-			int end = aql.indexOf("'", start + 1);
-			aqlSegments.add(aql.substring(0, start - 1));
-			aqlSegments.add(aql.substring(start, end + 1));
-			aql = aql.substring(end + 1);
-		}
-		aqlSegments.add(aql);
+		Optional.ofNullable(aql).ifPresent(a -> {
+			while (a.indexOf("'") > 0) {
+				int start = a.indexOf("'");
+				int end = a.indexOf("'", start + 1);
+				aqlSegments.add(a.substring(0, start));
+				aqlSegments.add(a.substring(start, end + 1));
+				a = a.substring(end + 1);
+			}
+			aqlSegments.add(a);
+		});
 		
-        
-		String hql = aqlSegments.stream().map((aqlSegement) -> {
-            if (!aqlSegement.startsWith("'")) {
-                aqlSegement = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aqlSegement);
-                aqlSegement = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(aqlSegement);
-                aqlSegement = aqlSegement.replaceAll("#", ".");
-            }
-            return aqlSegement;
-        }).reduce("", String::concat);
-        
-		return hql;
+		return Optional.ofNullable(aqlSegments);
+	}
+	
+	private Optional<String> joinHql(List<String> aqlSegments) {
+		return Optional.ofNullable(aqlSegments).map(a -> {
+			return a.stream().map((aqlSegement) -> {
+	            if (!aqlSegement.startsWith("'")) {
+	                aqlSegement = Archetype2Java.INSTANCE.getClassNameFromArchetypeId(aqlSegement);
+	                aqlSegement = Archetype2Java.INSTANCE.getAttributeNameFromArchetypePath(aqlSegement);
+	                aqlSegement = aqlSegement.replaceAll("#", ".");
+	            }
+	            return aqlSegement;
+	        }).reduce("", String::concat);
+		});
 	}
 
 	private Getter getter(Class<? extends Object> clazz, String name) 

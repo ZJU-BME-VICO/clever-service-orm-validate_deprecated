@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -70,7 +71,9 @@ public enum CleverServiceSingleton {
 
 	}
 
-	public int reconfigure(Collection<String> archetypes, Collection<String> arms) {
+	public int reconfigure(
+			Optional<Collection<String>> archetypes, 
+			Optional<Collection<String>> arms) {
 
 		try {
 			if (getServiceStatus()) {
@@ -83,15 +86,18 @@ public enum CleverServiceSingleton {
 
 			cfg = new Configuration().configure();
 			
-			Archetype2Java.INSTANCE.reset();
-			
-			Archetype2Java.INSTANCE.setClassFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath());
-			Archetype2Java.INSTANCE.setSourceFilePath(Thread.currentThread().getContextClassLoader().getResource("").getPath());
+			Archetype2Java.INSTANCE.reset();			
+			Archetype2Java.INSTANCE.setClassFilePath(
+					Thread.currentThread().getContextClassLoader().getResource("").getPath());
+			Archetype2Java.INSTANCE.setSourceFilePath(
+					Thread.currentThread().getContextClassLoader().getResource("").getPath());
 			Archetype2Java.INSTANCE.setPackageName("edu.zju.bme.clever.service.model");
 
-			archetypes.forEach(a -> {
-				Archetype2Java.INSTANCE.addArchetype(a);
-			});
+			archetypes.ifPresent(as -> 
+				as.forEach(a -> {
+					Archetype2Java.INSTANCE.addArchetype(a);
+				})
+			);
 			Map<String, Class<?>> classes = Archetype2Java.INSTANCE.compile();
 			classes.values().forEach(c -> {
 				cfg.addAnnotatedClass(c);
@@ -109,19 +115,15 @@ public enum CleverServiceSingleton {
 
 	}
 
-	public List<String> select(String aql) {
+	public List<String> select(Optional<String> aql) {
 
-		return select(aql, null);
+		return select(aql, Optional.empty());
 
 	}
 
-	public List<String> select(String aql, Map<String, Object> parameters) {
-
-		logger.info(aql);
+	public List<String> select(Optional<String> aql, Optional<Map<String, Object>> parameters) {
 		
-		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
-		
-		logger.info(hql);
+		Optional<String> hql = this.aql2hql(aql);
 		
 		Session s = sessionFactory.openSession();
 		Transaction txn = s.beginTransaction();
@@ -133,7 +135,7 @@ public enum CleverServiceSingleton {
 
 			long startTime = System.currentTimeMillis();
 
-			Query q = s.createQuery(hql);
+			Query q = s.createQuery(hql.get());
 			passParameters(q, parameters);
 			@SuppressWarnings("rawtypes")
 			List results = q.list();
@@ -200,18 +202,14 @@ public enum CleverServiceSingleton {
 
 	}
 
-	public long selectCount(String aql) {
+	public long selectCount(Optional<String> aql) {
 		
-		return selectCount(aql, null);
+		return selectCount(aql, Optional.empty());
 	}
 
-	public long selectCount(String aql, Map<String, Object> parameters) {
-
-		logger.info(aql);
+	public long selectCount(Optional<String> aql, Optional<Map<String, Object>> parameters) {
 		
-		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
-		
-		logger.info(hql);
+		Optional<String> hql = this.aql2hql(aql);
 
 		Session s = sessionFactory.openSession();
 		Transaction txn = s.beginTransaction();
@@ -223,7 +221,7 @@ public enum CleverServiceSingleton {
 
 			long startTime = System.currentTimeMillis();
 
-			Query q = s.createQuery(hql);
+			Query q = s.createQuery(hql.get());
 			passParameters(q, parameters);
 			List<?> l = q.list();
 			long ret = (Long) l.get(0);
@@ -250,7 +248,7 @@ public enum CleverServiceSingleton {
 
 	}
 
-	public int insert(List<String> dadls) {
+	public int insert(Optional<List<String>> dadls) {
 
 		Session s = sessionFactory.openSession();
 		Transaction txn = s.beginTransaction();
@@ -266,7 +264,7 @@ public enum CleverServiceSingleton {
 			List<String> archetypeIds = new ArrayList<>();
 			List<Locatable> dadlObjects = new ArrayList<>();
 
-			for (String dadl : dadls) {
+			for (String dadl : dadls.get()) {
 				logger.info(dadl);
 				
 				InputStream is = new ByteArrayInputStream(dadl.getBytes(StandardCharsets.UTF_8));
@@ -328,8 +326,9 @@ public enum CleverServiceSingleton {
                         JavaClass fieldMappingClass = Archetype2Java.INSTANCE.getMappingClassFromMappingClassName(f.getType());
                         if (fieldMappingClass != null) {
                         	String aql = "from " + fieldMappingClass.getArchetypeName() + " where /uid/value = '" + loc.itemAtPath(f.getArchetypePath()) + "'";
-                        	String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
-                            Query q = s.createQuery(hql);
+//                        	String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
+                        	Optional<String> hql = this.aql2hql(Optional.ofNullable(aql));
+                            Query q = s.createQuery(hql.get());
                             List<?> results = q.list();
                             if (results.size() <= 0) {
                             	archetypeIdsLeft.add(archetypeId);
@@ -364,37 +363,33 @@ public enum CleverServiceSingleton {
         
 	}
 
-	public int delete(String aql) {
+	public int delete(Optional<String> aql) {
 
-		return delete(aql, null);
+		return delete(aql, Optional.empty());
 
 	}
 
-	public int delete(String aql, Map<String, Object> parameters) {
+	public int delete(Optional<String> aql, Optional<Map<String, Object>> parameters) {
 
 		return executeUpdate(aql, parameters);
 
 	}
 
-	public int update(String aql) {
+	public int update(Optional<String> aql) {
 
-		return update(aql, null);
+		return update(aql, Optional.empty());
 
 	}
 
-	public int update(String aql, Map<String, Object> parameters) {
+	public int update(Optional<String> aql, Optional<Map<String, Object>> parameters) {
 
 		return executeUpdate(aql, parameters);
 
 	}
 
-	protected int executeUpdate(String aql, Map<String, Object> parameters) {
-
-		logger.info(aql);
+	protected int executeUpdate(Optional<String> aql, Optional<Map<String, Object>> parameters) {
 		
-		String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
-		
-		logger.info(hql);
+		Optional<String> hql = this.aql2hql(aql);
 
 		Session s = sessionFactory.openSession();
 		Transaction txn = s.beginTransaction();
@@ -406,7 +401,7 @@ public enum CleverServiceSingleton {
 
 			long startTime = System.currentTimeMillis();
 
-			Query q = s.createQuery(hql);
+			Query q = s.createQuery(hql.get());
 			passParameters(q, parameters);
 			int ret = q.executeUpdate();
 
@@ -432,39 +427,30 @@ public enum CleverServiceSingleton {
 
 	}
 
-	protected void passParameters(Query q, Map<String, Object> parameters) {
+	protected void passParameters(Query q, Optional<Map<String, Object>> parameters) {
 
-		if (parameters != null) {
-			parameters.keySet().forEach(p -> {
-				q.setParameter(p, parameters.get(p));				
-			});
-		}
+		parameters.ifPresent(ps -> ps.keySet().forEach(p -> {
+				q.setParameter(p, ps.get(p));				
+			})
+		);
 
 	}
 
-	public List<String> getSQL(String aql) {
+	public List<String> getSQL(Optional<String> aql) {
 
 		try {
 			if (!getServiceStatus()) {
 				return null;
 			}
-
-			if (aql == null || aql.trim().length() <= 0) {
-				return null;
-			}
 			
-			logger.info(aql);
-			
-			String hql = ArchetypeManipulator.INSTANCE.Aql2Hql(aql);
-			
-			logger.info(hql);
+			Optional<String> hql = this.aql2hql(aql);
 
 			long startTime = System.currentTimeMillis();
 
 			final QueryTranslatorFactory translatorFactory = new ASTQueryTranslatorFactory();
 			final SessionFactoryImplementor factory = (SessionFactoryImplementor) sessionFactory;
 			final QueryTranslator translator = translatorFactory
-					.createQueryTranslator(hql, hql, Collections.EMPTY_MAP, factory, null);
+					.createQueryTranslator(hql.get(), hql.get(), Collections.EMPTY_MAP, factory, null);
 			translator.compile(Collections.EMPTY_MAP, false);
 			List<String> sqls = translator.collectSqlStrings();
 			
@@ -499,25 +485,33 @@ public enum CleverServiceSingleton {
 		
 	}
 	
-	public String getArchetypeString(String archetypeId) {
+	public String getArchetypeString(Optional<String> archetypeId) {
 		
 		try {
 			if (!getServiceStatus()) {
 				return "";
 			}
-
-			for (JavaClass jc : Archetype2Java.INSTANCE.getJavaClasses()) {
-				if (jc.getArchetypeName().compareTo(archetypeId) == 0) {
-					return jc.getArchetypeString();
-				}
-			}
-
-			return "";
+			
+			return Archetype2Java.INSTANCE.getJavaClasses().stream().filter(
+					jc -> jc.getArchetypeName().compareTo(archetypeId.get()) == 0).findFirst().map(
+							jc -> jc.getArchetypeString()).orElse("");
 			
 		} catch (Exception e) {
 			logger.error(e);
 			return "";
 		}
+		
+	}
+	
+	private Optional<String> aql2hql(Optional<String> aql) {
+
+		logger.info(aql.get());
+		
+		Optional<String> hql = aql.flatMap(ArchetypeManipulator.INSTANCE::Aql2Hql);
+		
+		logger.info(hql.get());
+		
+		return hql;
 		
 	}
 
