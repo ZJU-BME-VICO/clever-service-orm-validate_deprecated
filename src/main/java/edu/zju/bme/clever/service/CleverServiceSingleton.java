@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
@@ -92,12 +93,7 @@ public enum CleverServiceSingleton {
 			Archetype2Java.INSTANCE.setSourceFilePath(
 					Thread.currentThread().getContextClassLoader().getResource("").getPath());
 			Archetype2Java.INSTANCE.setPackageName("edu.zju.bme.clever.service.model");
-
-			archetypes.ifPresent(as -> 
-				as.forEach(a -> {
-					Archetype2Java.INSTANCE.addArchetype(a);
-				})
-			);
+			Archetype2Java.INSTANCE.addArchetypes(Optional.of(archetypes.get().stream().collect(Collectors.toList())));
 			Map<String, Class<?>> classes = Archetype2Java.INSTANCE.compile();
 			classes.values().forEach(c -> {
 				cfg.addAnnotatedClass(c);
