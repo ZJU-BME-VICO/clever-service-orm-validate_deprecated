@@ -1,10 +1,12 @@
 package edu.zju.bme.clever.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +22,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.registry.BootstrapServiceRegistry;
+import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -87,20 +91,27 @@ public enum CleverServiceSingleton {
 
 			cfg = new Configuration().configure();
 			
-			Archetype2Java.INSTANCE.reset();			
-			Archetype2Java.INSTANCE.setClassFilePath(
-					Thread.currentThread().getContextClassLoader().getResource("").getPath());
-			Archetype2Java.INSTANCE.setSourceFilePath(
-					Thread.currentThread().getContextClassLoader().getResource("").getPath());
-			Archetype2Java.INSTANCE.setPackageName("edu.zju.bme.clever.service.model");
+			Archetype2Java.INSTANCE.reset();		
+			String workpath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + File.separatorChar + "workpath";
+			Archetype2Java.INSTANCE.setWorkpath(workpath);
 			Archetype2Java.INSTANCE.addArchetypes(Optional.of(archetypes.get().stream().collect(Collectors.toList())));
-			Map<String, Class<?>> classes = Archetype2Java.INSTANCE.compile();
+			Map<String, Class<?>> classes = Archetype2Java.INSTANCE.compile(this.getClass().getClassLoader());
+			classes.forEach((s, c) -> {
+				System.out.println(s);
+				Arrays.asList(c.getAnnotations()).forEach(a -> {
+					System.out.println(a.annotationType().getName());
+				});
+			});
 			classes.values().forEach(c -> {
 				cfg.addAnnotatedClass(c);
 			});
 
+			BootstrapServiceRegistry bootstrapServiceRegistry = 
+					new BootstrapServiceRegistryBuilder().with(
+							Archetype2Java.INSTANCE.getMappingClassLoader()).build();
 			StandardServiceRegistry serviceRegistry = 
-					new StandardServiceRegistryBuilder().applySettings(cfg.getProperties()).build();
+					new StandardServiceRegistryBuilder(bootstrapServiceRegistry)
+						.applySettings(cfg.getProperties()).build();
 			sessionFactory = cfg.buildSessionFactory(serviceRegistry);
 
 			return 0;
