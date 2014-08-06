@@ -20,7 +20,7 @@
 		<openEHR.version>1.0.5.3</openEHR.version>
 		<tomcat.server>localhost</tomcat.server>
 		<tomcat.port>9098</tomcat.port>
-		<tomcat.path>/clever-service-orm</tomcat.path>
+		<tomcat.path>/clever-service-orm-validate</tomcat.path>
 		<dbserver>localhost</dbserver>
 	</properties>
 
