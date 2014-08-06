@@ -30,7 +30,7 @@
 			<properties>
 				<env>dev</env>
 				<tomcat.url>http://${tomcat.server}:${tomcat.port}/manager/text</tomcat.url>
-				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=cdr-iv-dev</database.url>
+				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-iv-dev</database.url>
 				<database.username>sa</database.username>
 				<database.password>sa</database.password>
 			</properties>
@@ -43,7 +43,7 @@
 			<properties>
 				<env>test</env>
 				<tomcat.url>http://${tomcat.server}:${tomcat.port}/manager/text</tomcat.url>
-				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=cdr-iv</database.url>
+				<database.url>jdbc:sqlserver://${dbserver}:1433;DatabaseName=clever-iv</database.url>
 				<database.username>sa</database.username>
 				<database.password>sa</database.password>
 			</properties>
@@ -53,7 +53,7 @@
 			<properties>
 				<env>remote-dev</env>
 				<tomcat.url>http://172.16.100.63:${tomcat.port}/manager/text</tomcat.url>
-				<database.url>jdbc:sqlserver://172.16.100.33;instanceName=CDR;databaseName=cdr-iv-dev</database.url>
+				<database.url>jdbc:sqlserver://172.16.100.33;instanceName=CDR;databaseName=clever-iv-dev</database.url>
 				<database.username>sa</database.username>
 				<database.password>@Sxdyy0808</database.password>
 			</properties>
@@ -63,7 +63,7 @@
 			<properties>
 				<env>remote-test</env>
 				<tomcat.url>http://172.16.100.63:${tomcat.port}/manager/text</tomcat.url>
-				<database.url>jdbc:sqlserver://172.16.100.33;instanceName=CDR;databaseName=cdr-iv</database.url>
+				<database.url>jdbc:sqlserver://172.16.100.33;instanceName=CDR;databaseName=clever-iv</database.url>
 				<database.username>sa</database.username>
 				<database.password>@Sxdyy0808</database.password>
 			</properties>
